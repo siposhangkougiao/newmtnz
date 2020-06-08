@@ -131,6 +131,24 @@ public class DateUtil {
 		}
 	}
 
+	public String dateFormat(Date date){
+		SimpleDateFormat sdf1 = new SimpleDateFormat("d日");
+		SimpleDateFormat sdf2 = new SimpleDateFormat("M月d日");
+		SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+		String dateTime = "";
+			if(MyTimesUtil.isThisYear(date)){
+				if(MyTimesUtil.isThisMonth(date)){
+					dateTime = sdf1.format(date);
+				}else {
+					dateTime = sdf2.format(date);
+				}
+			}else {
+				dateTime = sdf3.format(date);
+			}
+		return dateTime;
+	}
+
+
 	/**
 	 * <li>功能描述：时间相减得到天数
 	 * 
