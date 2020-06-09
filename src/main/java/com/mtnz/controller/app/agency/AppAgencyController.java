@@ -10,6 +10,7 @@ import com.mtnz.service.system.sys_app_user.SysAppUserService;
 import com.mtnz.util.DateUtil;
 import com.mtnz.util.PageData;
 import com.mtnz.util.WPush;
+import org.apache.poi.util.SystemOutLogger;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -333,8 +334,10 @@ public class AppAgencyController extends BaseController{
                 }
                 pd.put("month",DateUtil.getDay());
                 PageData pd_c=agencyService.findCount(pd);
-                List<PageData> list=bannerService.findList(pd);
+                List<PageData> list=bannerService.findList(uid, pd);
+                System.out.println(pd);
                 PageData pd_s=sysAppUserService.findBySId(pd);
+
                 StoreLose storeLose = new StoreLose();
                 storeLose.setStoreId(Long.valueOf(store_id));
                 StoreLose selectLose = storeService.selectLose(storeLose);
@@ -343,29 +346,32 @@ public class AppAgencyController extends BaseController{
                     pd.put("lose",selectLose);
                 }else {
                     storeLose.setStatus(1);
+                    storeLose.setAutomatic(1);
                     pd.put("lose",storeLose);
                 }
                 pd.put("code","1");
                 pd.put("message","正确返回数据!");
                 pd.put("count",pd_c.get("count").toString());
                 pd.put("data",list);
-                pd.put("name",pd_s.getString("sname"));
-                pd.put("address",pd_s.getString("saddress"));
-                pd.put("province",pd_s.getString("sprovince"));
-                pd.put("city",pd_s.getString("scity"));
-                pd.put("district",pd_s.getString("district"));
-                pd.put("county",pd_s.getString("scounty"));
-                pd.put("street",pd_s.getString("street"));
-                pd.put("phone",pd_s.getString("sphone"));
-                pd.put("openid",pd_s.getString("openid"));
+                if (pd_s != null) {
+                    pd.put("name", pd_s.getString("sname"));
+                    pd.put("address", pd_s.getString("saddress"));
+                    pd.put("province", pd_s.getString("sprovince"));
+                    pd.put("city", pd_s.getString("scity"));
+                    pd.put("district", pd_s.getString("district"));
+                    pd.put("county", pd_s.getString("scounty"));
+                    pd.put("street", pd_s.getString("street"));
+                    pd.put("phone", pd_s.getString("sphone"));
+                    pd.put("openid", pd_s.getString("openid"));
 
-                if(pd_s.getString("qr_code")==null){
-                    pd.put("qr_code","");
-                }else {
-                    pd.put("qr_code",pd_s.getString("qr_code"));
+                    if (pd_s.getString("qr_code") == null) {
+                        pd.put("qr_code", "");
+                    } else {
+                        pd.put("qr_code", pd_s.getString("qr_code"));
+                    }
+
+                    pd.put("business_img", pd_s.getString("business_img"));
                 }
-
-                pd.put("business_img",pd_s.getString("business_img"));
             }catch (Exception e) {
                 pd.clear();
                 pd.put("code", "2");

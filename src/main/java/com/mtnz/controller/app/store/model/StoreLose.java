@@ -17,8 +17,19 @@ public class StoreLose {
   @Column(name = "status")
   private Integer status;
 
+  @Column(name = "automatic")
+  private Integer automatic;
+
   @Column(name = "creat_time")
   private Date creatTime;
+
+  public Integer getAutomatic() {
+    return automatic;
+  }
+
+  public void setAutomatic(Integer automatic) {
+    this.automatic = automatic;
+  }
 
   public Long getId() {
     return id;

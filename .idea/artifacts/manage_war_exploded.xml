@@ -95,11 +95,11 @@
           <element id="library" level="project" name="Maven: org.apache.shiro:shiro-quartz:1.4.0" />
           <element id="library" level="project" name="Maven: org.opensymphony.quartz:quartz:1.6.1" />
           <element id="library" level="project" name="Maven: org.apache.shiro:shiro-spring:1.4.0" />
-          <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpcore:4.4.9" />
+          <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpcore:4.4.4" />
           <element id="library" level="project" name="Maven: commons-httpclient:commons-httpclient:3.0.1" />
           <element id="library" level="project" name="Maven: com.belerweb:pinyin4j:2.5.0" />
           <element id="library" level="project" name="Maven: javax.api:java.api:1.7.0" />
-          <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpclient:4.3.4" />
+          <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpclient:4.5.2" />
           <element id="library" level="project" name="Maven: org.jdom:jdom:1.1" />
           <element id="library" level="project" name="Maven: org.poi:poi:3.11" />
           <element id="library" level="project" name="Maven: com.alipay:alipay:1.0.0" />
@@ -114,6 +114,7 @@
           <element id="library" level="project" name="Maven: com.google.zxing:core:3.2.1" />
           <element id="library" level="project" name="Maven: com.beust:jcommander:1.48" />
           <element id="library" level="project" name="Maven: com.itextpdf:itextpdf:5.5.6" />
+          <element id="library" level="project" name="Maven: org.projectlombok:lombok:1.16.22" />
         </element>
       </element>
       <element id="directory" name="META-INF">

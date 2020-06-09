@@ -267,4 +267,15 @@ public class SysAppUserService {
         validationYzmMapper.updateByPrimaryKeySelective(upbean);
         return map;
     }
+
+    public void updateUserInfo(SysAppUser sysAppUser){
+        SysAppUser appUser = sysAppUserNewMapper.selectByPrimaryKey(sysAppUser);
+        if(appUser==null){
+            throw new ServiceException(-102,"用户不存在",null);
+        }
+        Example example = new Example(SysAppUser.class);
+        example.and().andEqualTo("uid",sysAppUser.getUid());
+        sysAppUserNewMapper.updateByExampleSelective(sysAppUser,example);
+    }
+
 }

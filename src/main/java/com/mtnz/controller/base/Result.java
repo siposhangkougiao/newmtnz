@@ -23,6 +23,12 @@ public class Result<T> implements Serializable {
         this.msg = msg;
     }
 
+    public Result(String msg,T data) {
+        this.msg = msg;
+        this.data = data;
+    }
+
+
     /**
      * 编码:0-成功,1-失败
      */

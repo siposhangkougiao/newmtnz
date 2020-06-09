@@ -8,6 +8,8 @@ import com.google.gson.reflect.TypeToken;
 import com.mtnz.controller.app.order.model.OrderGift;
 import com.mtnz.controller.app.preorder.model.PreOrder;
 import com.mtnz.controller.base.BaseController;
+import com.mtnz.controller.base.Result;
+import com.mtnz.controller.base.ServiceException;
 import com.mtnz.entity.Page;
 import com.mtnz.service.system.agency.AgencyService;
 import com.mtnz.service.system.already.AlreadyService;
@@ -31,12 +33,15 @@ import org.apache.commons.collections.map.HashedMap;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -79,8 +84,25 @@ public class AppOrderController extends BaseController{
     @Resource
     private PreOrderService preOrderService;
 
+    @RequestMapping(value = "/updateOrderInfo",method = RequestMethod.POST)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ResponseBody
+    public Result updateOrderInfo(Long order_info_id){
 
-
+        Result result = new Result(0,"成功");
+        try {
+            orderInfoService.updateOrderInfo(order_info_id);
+        }catch (ServiceException e) {
+            logger.error("数据操作失败",e);
+            result.setCode(e.getExceptionCode());
+            result.setMsg(e.getMessage());
+        } catch (Exception e) {
+            logger.error("系统错误",e);
+            result.setCode(-101);
+            logger.error("系统错误",e);
+        }
+        return result;
+    }
 
     /**
      * 查询销售单详情
@@ -621,8 +643,9 @@ public class AppOrderController extends BaseController{
      */
     @RequestMapping(value = "findlikeOrderInfo",produces = "text/html;charset=UTF-8")
     @ResponseBody
-    public String findlikeOrderInfo(String store_id,String name){
+    public String findlikeOrderInfo(String store_id,String name,Integer pageNumber){
         logBefore(logger,"模糊查询账单");
+        Integer pageSize = 10;
         PageData pd=this.getPageData();
         if(store_id==null||store_id.length()==0||name==null||name.length()==0){
             pd.clear();
@@ -1290,7 +1313,14 @@ public class AppOrderController extends BaseController{
                     }
                     kunCunService.editJiaNums(lists.get(j));
                 }
-                productService.editJiaNums(list.get(i));
+                if(list.get(i).get("isThreeSales").equals(0)){ //如果是按三级单位购买的
+                    productService.editJiaNums(list.get(i));//更新商品库存信息
+                }else {
+                    BigDecimal bigDecimal = new BigDecimal(list.get(i).get("num").toString()).multiply(new BigDecimal(list.get(i).get("norms4").toString()));
+                    list.get(i).put("num",bigDecimal);
+                    productService.editJiaNums(list.get(i));//更新商品库存信息
+                }
+
             }
             pd.clear();
             pd.put("code","1");
@@ -1338,7 +1368,7 @@ public class AppOrderController extends BaseController{
                              String total_money, String money, String discount_money,
                              String owe_money, String data, String customer_id, String store_id,
                              String medication_date, String remarks, String uid, String open_bill, String date, Integer isli
-                , BigDecimal integral, Long open_user, String remark, BigDecimal balance,String orderGifts,Integer lose,Integer isfast){
+                , BigDecimal integral, Long open_user, String remark, BigDecimal balance,String orderGifts,Integer lose,Integer isfast,Integer isSend){
         PageData pd=new PageData();
         String str="";
         try {
@@ -1355,7 +1385,7 @@ public class AppOrderController extends BaseController{
             }
             str=orderKuncunService.saveOrder(name,phone,status,total_money,money,discount_money,
                     owe_money,data.trim(),customer_id,store_id,
-                    medication_date,remarks,uid,open_bill,date,isli,integral,open_user,remark,balance,orderGift,lose,isfast);
+                    medication_date,remarks,uid,open_bill,date,isli,integral,open_user,remark,balance,orderGift,lose,isfast,isSend);
             return str;
         }catch (Exception e){
             pd.clear();

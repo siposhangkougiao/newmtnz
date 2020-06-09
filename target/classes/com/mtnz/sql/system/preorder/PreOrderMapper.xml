@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mtnz.sql.system.preorder.PreOrderMapper">
+    <select id="selectlist" resultType="com.mtnz.controller.app.preorder.model.PreOrder">
+        select po.id
+        from pre_order po
+        left join pre_order_detail pd on po.id = pd.order_id
+        where po.store_id = #{store_id}
+        <if test="productName !=null and productName!=''">
+            and (
+            po.name like concat('%',#{productName},'%') or
+            po.phone like concat('%',#{productName},'%') or
+            po.remark like concat('%',#{productName},'%') or
+            pd.product_name like concat('%',#{productName},'%')
+            )
+        </if>
+        <if test="is_return !=null">
+            and po.is_return = #{is_return}
+        </if>
+        <if test="star_time !=null and end_time !=null">
+            and po.great_time between #{star_time} and #{end_time}
+        </if>
+        <if test="customer_id !=null and customer_id!=''">
+            and po.customer_id = #{customer_id}
+        </if>
+        group by po.id
+        order by po.id desc
+    </select>
+
+    <select id="selectById">
+        select po.*,pd.*,pd.id as aid
+        from pre_order po
+        left join pre_order_detail pd on po.id = pd.order_id
+        where po.id = #{id}
+    </select>
+</mapper>

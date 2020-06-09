@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mtnz.sql.system.mysql.KuCunMapper">
+
+    <select id="selectSum" resultType="java.lang.Integer">
+        select sum(nums) from kuncun where product_id = #{productId} and status=2
+    </select>
+
+    <update id="updatekucun">
+        update kuncun set nums = 0 where product_id = #{productId} and status=2
+    </update>
+
+    <select id="selectdesc" resultType="com.mtnz.controller.app.mysql.model.KuCun">
+        select kuncun_id kuncunId from kuncun k where product_id = #{productId} and status=2 order by kuncun_id desc limit 1
+    </select>
+
+    <update id="updatelist">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update kuncun
+            <set>
+                nums = #{item.nums}
+            </set>
+            <where>
+                kuncun_id = #{item.kuncunId}
+            </where>
+        </foreach>
+    </update>
+
+    <update id="updateling">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update kuncun
+            <set>
+                nums = #{item.nums}
+            </set>
+            <where>
+                product_id = #{item.productId}
+            </where>
+        </foreach>
+    </update>
+
+    <select id="selectgetbean" resultType="com.mtnz.controller.app.mysql.model.GetBean">
+        SELECT product_id productId,sum(nums) total FROM kuncun where status=2 and product_id in (
+        <foreach collection="list" item="item" separator=",">
+            #{item.productId}
+        </foreach>
+        ) GROUP BY product_id
+    </select>
+</mapper>

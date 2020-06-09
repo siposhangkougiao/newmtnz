@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="OrderKunCunMapper">
+    <insert id="save" parameterType="pd">
+        INSERT INTO order_kuncun(
+            order_pro_id,
+            product_id,
+            kuncun_id,
+            product_price,
+            purchase_price,
+            num,
+            nums,
+            all_number,
+            now_number,
+            order_info_id,
+            store_id,
+            date
+        )VALUES (
+            #{order_pro_id},
+            #{product_id},
+            #{kuncun_id},
+            #{product_price},
+            #{purchase_price},
+            #{num},
+            #{num},
+            #{all_number},
+            #{now_number},
+            #{order_info_id},
+            #{store_id},
+            #{date}
+        )
+    </insert>
+
+
+    <select id="findList" parameterType="pd" resultType="pd">
+        SELECT
+            order_kucun_id,
+            order_pro_id,
+            product_id,
+            kuncun_id,
+            product_price,
+            purchase_price,
+            num,
+            nums,
+            all_number,
+            now_number,
+            order_info_id
+        FROM  order_kuncun
+        WHERE order_pro_id=#{order_pro_id} and kuncun_id!=0 and nums>0
+        ORDER BY order_kucun_id DESC
+    </select>
+
+    <select id="findListli" parameterType="pd" resultType="pd">
+        SELECT
+            order_kucun_id,
+            order_pro_id,
+            product_id,
+            kuncun_id,
+            product_price,
+            purchase_price,
+            num,
+            nums,
+            all_number,
+            now_number,
+            order_info_id
+        FROM  order_kuncun
+        WHERE order_pro_id=#{order_pro_id} and kuncun_id!=0 and all_number>0
+        ORDER BY order_kucun_id DESC
+    </select>
+
+    <select id="findById" parameterType="pd" resultType="pd">
+        SELECT
+            order_kucun_id,
+            order_pro_id,
+            product_id,
+            kuncun_id,
+            product_price,
+            purchase_price,
+            num,
+            nums,
+            order_info_id
+        FROM  order_kuncun
+        WHERE order_pro_id=#{order_pro_id} and kuncun_id=0 and nums>0
+    </select>
+
+    <update id="editNums" parameterType="pd">
+        UPDATE order_kuncun
+        SET nums=#{nums}
+        WHERE order_kucun_id=#{order_kucun_id}
+    </update>
+
+
+    <update id="editNumsli" parameterType="pd">
+        UPDATE order_kuncun
+        SET now_number=#{now_number}
+        WHERE order_kucun_id=#{order_kucun_id}
+    </update>
+
+
+
+
+    <!--  查询供应商的销售总价  -->
+    <select id="findSupplierProduct" parameterType="pd" resultType="pd">
+        SELECT
+          SUM(o.profit) as money
+        FROM
+        (
+            SELECT
+            IFNULL(
+            SUM(o.nums * o.product_price),
+            0
+            ) AS profit
+            FROM
+            order_kuncun o
+            LEFT JOIN product p ON p.product_id = o.product_id
+            WHERE p.supplier_id=#{supplier_id} and o.revokes='0'
+            GROUP BY
+            p.product_id
+        ) o
+    </select>
+
+    <select id="findOrderIdList" parameterType="pd" resultType="pd">
+         SELECT
+            order_kucun_id,
+            order_pro_id,
+            product_id,
+            kuncun_id,
+            product_price,
+            purchase_price,
+            num,
+            nums,
+            all_number,
+            now_number,
+            order_info_id
+        FROM  order_kuncun
+        WHERE order_pro_id=#{order_pro_id}
+    </select>
+
+    <update id="editrevokes" parameterType="pd">
+        UPDATE order_kuncun
+        SET revokes='1'
+        WHERE order_info_id=#{order_info_id}
+    </update>
+
+
+    <select id="findSumProduct" parameterType="pd" resultType="pd">
+        SELECT
+            IFNULL(SUM(product_price*nums),0) as money,
+            IFNULL(SUM(purchase_price*nums),0) as money1
+        from order_kuncun
+        WHERE product_id=#{product_id} and revokes='0'
+    </select>
+
+    <select id="findOrderProList" parameterType="pd" resultType="pd">
+        SELECT
+            order_kucun_id,
+            order_pro_id,
+            product_id,
+            kuncun_id,
+            product_price,
+            purchase_price,
+            num,
+            nums,
+            all_number,
+            now_number,
+            order_info_id
+        FROM order_kuncun
+        WHERE order_pro_id=#{order_pro_id} and product_id=#{product_id}
+    </select>
+
+    <select id="findOrderKucunTsByIdAndTime" parameterType="pd" resultType="java.math.BigDecimal">
+        select COALESCE(sum(nums * product_price),0) as product_money
+        from order_kuncun
+        where product_id = #{product_id} and order_kuncun.date between #{beginTime} and #{endTime} and revokes = 0 and all_number = 0
+    </select>
+
+    <select id="findOrderKucunTsLiByIdAndTime" parameterType="pd" resultType="java.math.BigDecimal">
+        select COALESCE(sum(now_number * product_price),0) as product_money
+        from order_kuncun
+        where product_id = #{product_id} and order_kuncun.date between #{beginTime} and #{endTime} and revokes = 0 and nums = 0
+    </select>
+</mapper>

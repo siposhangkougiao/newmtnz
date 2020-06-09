@@ -67,6 +67,17 @@ public class OrderInfo {
   @Column(name="total_sale")
   private BigDecimal totalSale;
 
+  @Column(name="outboundStatus")
+  private Integer outboundStatus;
+
+  public Integer getOutboundStatus() {
+    return outboundStatus;
+  }
+
+  public void setOutboundStatus(Integer outboundStatus) {
+    this.outboundStatus = outboundStatus;
+  }
+
   public Long getOrderInfoId() {
     return orderInfoId;
   }

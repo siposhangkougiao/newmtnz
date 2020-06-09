@@ -1,10 +1,15 @@
 package com.mtnz.util;
 
+import com.qiniu.util.Md5;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
     Created by xxj on 2018\3\26 0026.  
@@ -47,6 +52,27 @@ public class SmsBao {
         StringBuffer extno=new StringBuffer();
         return doPost(accesskey, secret, mobileString, contextString, sign, stime, extno);
     }
+
+    public String sendSms(String storeName,String phone,String productName,String productPrice) throws Exception {
+        SimpleDateFormat sf= new SimpleDateFormat("yyyyMMddHHmmss");
+        String strsystime = sf.format(System.currentTimeMillis());//系统当前时间
+
+        Map params = new HashMap();
+        params.put("account", "MXT801067");
+        params.put("ts", strsystime);
+        params.put("pswd", com.mtnz.util.MD5.getMD5("MXT801067" + "VKsJj*T886FJD" + strsystime));
+
+        params.put("msg", "【"+storeName+"】亲！您于{$var}日，购买了【{$var}】,共消费{$var}元，期待您再次光临");
+        params.put("params", "18336166733,"+DateUtil.getDay()+","+productName+","+productPrice);
+        params.put("needstatus", "true");
+        params.put("resptype", "json");
+        String url = "http://www.weiwebs.cn/msg/HttpVarSM";
+        String content = com.mtnz.util.HttpUtils.post(url, params, 3000, 3000, "UTF-8");
+
+        System.out.println(content);
+        return content;
+    }
+
 
 
     /**

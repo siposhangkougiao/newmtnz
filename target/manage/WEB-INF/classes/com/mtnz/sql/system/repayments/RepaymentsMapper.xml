@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="RepaymentsMapper">
+    <insert id="save" parameterType="pd">
+        INSERT INTO repayments(
+            supplier_id,
+            date,
+            money,
+            discount,
+            store_id
+        )VALUES (
+            #{supplier_id},
+            #{date},
+            #{money},
+            #{discount},
+            #{store_id}
+        )
+    </insert>
+
+    <select id="datalistPage" parameterType="page" resultType="pd">
+        SELECT
+            repayments_id,
+            supplier_id,
+            date,
+            money,
+            discount,
+            store_id
+        FROM repayments
+        WHERE supplier_id=#{pd.supplier_id}
+        ORDER BY date DESC
+    </select>
+
+    <select id="findSum" parameterType="pd" resultType="pd">
+        SELECT SUM(money) as money FROM repayments WHERE store_id=#{store_id} AND supplier_id=#{supplier_id}
+    </select>
+</mapper>

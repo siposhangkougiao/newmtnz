@@ -31,7 +31,7 @@ public class Const {
 	public static final String WEBSOCKET = "admin/config/WEBSOCKET.txt";// WEBSOCKET配置路径
 	//public static final String SERVERPATH = "http://m.nongjike.cn/NJK/"; // 服务器前缀
 	//public static final String SERVERPATH = "http://115.28.210.33:9090/manage/"; // 服务器前缀
-	public static final String SERVERPATH = "http://new.nongshoping.com:8081/manage/"; // 服务器前缀
+	public static final String SERVERPATH = "http://new.nongshoping.com:8080/manage/"; // 服务器前缀
 	//public static final String SERVERPATH = "http://192.168.1.143:8080/"; // 服务器前缀
 	public static final String FILEPATHIMG = "uploadFiles/uploadImgs/"; // 图片上传路径
 	public static final String FILEPATHFILE = "uploadFiles/file/"; // 文件上传路径

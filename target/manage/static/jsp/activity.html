@@ -1,0 +1,457 @@
+﻿<!--<!DOCTYPE html>
+<html>
+<head>
+ <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript">
+    var url=location.href;
+    var strs= new Array(); //定义一数组 
+    strs=url.split("?");
+    var strs1=new Array();
+    strs1=strs[1].split("=");
+    var strs12=new Array();
+    strs12=strs1[1].split("&");
+  //微信分享朋友圈  
+    $(function(){  
+      /***用户点击分享到微信圈后加载接口接口*******/  
+        $.ajax({  
+            url : "http://www.meitiannongzi.com/NJK/app/WeiXin2",
+            type: "POST",
+            data:{url:location.href.split('#')[0],ACTIVITY_ID:strs12[0]},
+            dataType: "json",
+            ContentType:'application/json; charset=utf-8',
+            success: function(data){
+            	$("#subject").html(data.activity.TITLE); 
+                $("#data").html(data.activity.MESSAGE+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+data.activity.DATE); 
+                document.getElementById("activity").src = data.activity.IMG;
+				document.getElementById("description").content = data.activity.TITLE;
+			    document.getElementById("IMG1").content =  data.activity.IMG;
+                document.title = data.activity.TITLE;
+                $.each(data.comm, function(i, list){
+                    $("<img src="+list.IMG+" style='width: 50px; margin: 60px auto auto 20px;'><div><div style='margin-left:70px;margin-top:-50px;width:60%;'><b>"+list.NAME+"</b>&nbsp;&nbsp;&nbsp;&nbsp;"+list.DATE.split(" ")[0]+"<br/></div>    <p style='margin-left:70px;width:60%;'>"+list.MESSAGE1+"</p></div>").appendTo("#comm");
+                });
+                wx.config({
+                    //debug : true,
+                    appId: data.appId,  
+                    timestamp:data.timestamp,  
+                    nonceStr:data.nonceStr,  
+                    signature:data.signature,  
+                    jsApiList: ['onMenuShareTimeline','onMenuShareAppMessage','onMenuShareQQ','onMenuShareWeibo','onMenuShareQZone'] // 必填，需要使用的JS接口列表
+                });
+                  wx.ready(function(){
+                      wx.onMenuShareTimeline({//分享到朋友圈
+                          title: data.activity.TITLE, // 分享标题
+                          link:data.url, // 分享链接
+                          imgUrl:data.activity.IMG // 分享图标
+                      });
+                      wx.onMenuShareAppMessage({//分享给朋友
+                          title:data.activity.TITLE, // 分享标题
+                          desc: '我在农极客看到了一个很不错的直播，快来看看把.', // 分享描述
+                          link:data.url, // 分享链接
+                          imgUrl: data.activity.IMG // 分享图标
+                      });
+                      wx.onMenuShareQQ({//分享到QQ
+                          title: data.activity.TITLE, // 分享标题
+                          desc:'我在农极客看到了一个很不错的直播，快来看看把.', // 分享描述
+                          imgUrl:data.activity.IMG // 分享图标
+                      });
+                      wx.onMenuShareWeibo({//分享到腾讯微博
+                          title: data.activity.TITLE, // 分享标题
+                          desc: '我在农极客看到了一个很不错的直播，快来看看把.', // 分享描述
+                          link:data.url, // 分享链接
+                          imgUrl:data.activity.IMG // 分享图标
+                      });
+                      wx.onMenuShareQZone({//分享到QQ空间
+                          title: data.activity.TITLE, // 分享标题
+                          desc: '我在农极客看到了一个很不错的直播，快来看看把.', // 分享描述
+                          link:data.url, // 分享链接
+                          imgUrl:data.post.IMG // 分享图标
+                      });
+
+                      // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+                  });
+            }
+        });         
+      });  
+    </script>
+<style>
+.demoDiv {
+    text-align:center
+}
+.height {
+    width: 100%;
+    height: 20px;
+}
+.line {
+    margin-left: 5%;
+    width: 90%;
+    height: 1px;
+    border-bottom: 1px dashed #b5b5b5;
+    position: relative;
+    margin-top: 35px;
+    margin-bottom: 30px;
+}
+
+.line p {
+    position: absolute;
+    display: block;
+    top: -35px;
+    left: 35%;
+    background: #f7f7f7;
+    text-align: center;
+    width: 100px;
+    font-size: 22px;
+    color: #999999;
+}
+img{
+	width:100%;
+	height:100%;
+}
+</style>  
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<meta name="keywords" id="keywords" content="农极客">
+<meta name="description" itemprop="description" content="我在农极客看到了一个很不错的直播，快来看看把." id="description2"/>
+<meta name="description" itemprop="name" content="" id="description">
+<meta itemprop="image" content="http://www.meitiannongzi.com/NJK/uploadFiles/uploadImgs/logo.png" id="IMG1"/>
+</head>
+<body style="width: 90%; margin: 0 auto; font-family: 微软雅黑; font-size:30px;">
+    <h3 class="demoDiv" id="subject">农极客</h3>
+    <div class="demoDiv"><img id="activity" alt="" src=""></div>
+    <p class="demoDiv">
+    <span id="data">老猫         2017-03-17 15:07:34</span>
+        <a href="http://a.app.qq.com/o/simple.jsp?pkgname=com.ylsoft.njk"  style="text-decoration:none; color:#5e80a6; font-weight:bold;margin-left:10px; width:90%">农极客</a>
+    </p>
+    
+<!-------看这个div-------------->
+<!--<div class="line" >
+  <p>帖子</p>
+</div>
+     <div>
+             <div id="comm">
+                
+             </div>
+        <br/>
+        <br/>
+        <br/>
+
+                    <div>
+             <p style="text-align:center">查看更多请点击下载</p> 
+             <style>img{max-width:100%;}</style><span style="margin-top: -50px;"><a 
+
+href="http://a.app.qq.com/o/simple.jsp?pkgname=com.ylsoft.njk"  style="text-decoration:none; color:#5e80a6; font-weight:bold;margin-left:10px; width:90%"><img
+                src="images/fenxiang.png"></a></span>               
+        </div>
+
+
+    </div>
+</body>
+</html> ---------->
+
+
+
+<!--<!DOCTYPE html>
+<html>
+<head>
+
+<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.tips.js"></script>
+ <script type="text/javascript">
+    var url=location.href;
+    var strs= new Array(); //定义一数组 
+    strs=url.split("?");
+    var strs1=new Array();
+    strs1=strs[1].split("=");
+    var strs12=new Array();
+    strs12=strs1[1].split("&");
+  //微信分享朋友圈  
+    $(function(){  
+      /***用户点击分享到微信圈后加载接口接口*******/  
+        $.ajax({  
+            url : "http://www.meitiannongzi.com/NJK/app/WeiXin2",
+            type: "POST",
+            data:{url:location.href.split('#')[0],ACTIVITY_ID:strs12[0]},
+            dataType: "json",
+            ContentType:'application/json; charset=utf-8',
+            success: function(data){
+			    document.getElementById("SIMG").src =  data.activity.IMG;
+	            $.each(data.comm1, function(i, list){
+	            	$('<tr  style="height:100px;font-size: 40px;"><td style="color:#32B4FF">置顶</td><td>'+list.SUBJECT+'</td></tr>').appendTo("#ZHIDING");
+	            });
+	            $.each(data.comm2,function(i,list){
+	            	$('<br/><div style="width:100%;height:200px"><div style="float:left;width:210px;height:150px"><style>img {max-width: 100%;}</style><img alt="" style="width: 100%; height: 100%" src='+list.IMG+'></div><table style="height:150px;width:750px;font-size: 40px;"><tr style="height:100px"><td style="float:left;color:#32B4FF">实验作物:'+list.CROP+'</td><td style="float:right;color:#666666">'+list.DATE.split(" ")[0]+'</td></tr><td style="float:left">嘉宾:'+list.NAME+'</td><td style="float:right;color:#666666">第'+list.COUNT+'次发帖</td></tr></table><br/><span style="font-size:2.5em;color:#999999">直播地:'+list.ADDRESS+'</span></div><br/><br/><hr/>').appendTo("#message")
+	            })
+/* 	            $.each(data.comm2, function(i, list){
+	            	$('<div style="width:100%"><div style="float:left;width:90px;height:50px"><style>img {max-width: 100%;}</style><img style="width:100%;height:100%" alt="" src='+list.IMG+'></div><table style="height:50px;width:200px"><tr style="height:30px"><td style="float:left">实验作物:'+list.CROP+'</td><td style="float:right">'+list.DATE.split(" ")+'</td></tr><td style="float:left">嘉宾:'+list.NAME+'</td><td style="float:right">'+list.COUNT+'</td></tr></table></div>直播地:'+list.ADDRESS+'<hr/>').appendTo("#message");
+	            } */
+				wx.config({
+                    //debug : true,
+                    appId: data.appId,  
+                    timestamp:data.timestamp,  
+                    nonceStr:data.nonceStr,  
+                    signature:data.signature,  
+                    jsApiList: ['onMenuShareTimeline','onMenuShareAppMessage','onMenuShareQQ','onMenuShareWeibo','onMenuShareQZone'] // 必填，需要使用的JS接口列表
+                });
+                  wx.ready(function(){
+                      wx.onMenuShareTimeline({//分享到朋友圈
+                          title: data.activity.TITLE, // 分享标题
+                          link:data.url, // 分享链接
+                          imgUrl:data.activity.IMG // 分享图标
+                      });
+                      wx.onMenuShareAppMessage({//分享给朋友
+                          title:data.activity.TITLE, // 分享标题
+                          desc: '我在农极客看到了一个很不错的直播，快来看看把.', // 分享描述
+                          link:data.url, // 分享链接
+                          imgUrl: data.activity.IMG // 分享图标
+                      });
+                      wx.onMenuShareQQ({//分享到QQ
+                          title: data.activity.TITLE, // 分享标题
+                          desc:'我在农极客看到了一个很不错的直播，快来看看把.', // 分享描述
+                          imgUrl:data.activity.IMG // 分享图标
+                      });
+                      wx.onMenuShareWeibo({//分享到腾讯微博
+                          title: data.activity.TITLE, // 分享标题
+                          desc: '我在农极客看到了一个很不错的直播，快来看看把.', // 分享描述
+                          link:data.url, // 分享链接
+                          imgUrl:data.activity.IMG // 分享图标
+                      });
+                      wx.onMenuShareQZone({//分享到QQ空间
+                          title: data.activity.TITLE, // 分享标题
+                          desc: '我在农极客看到了一个很不错的直播，快来看看把.', // 分享描述
+                          link:data.url, // 分享链接
+                          imgUrl:data.post.IMG // 分享图标
+                      });
+
+                      // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+                  });
+            }
+        });         
+      });  
+    </script>
+<meta charset="UTF-8">
+<title>农极客直播</title>
+<meta name="keywords" id="keywords" content="农极客">
+</head>
+<body>
+	<div>
+		<div>
+			<style>img {max-width: 100%;}</style><img style="width:100%;height:100%" id="SIMG" alt="图片" src="http://www.meitiannongzi.com/NJK/uploadFiles/uploadImgs/20170513/465b71e798264c5fa72cb74656ebc48f.png">
+		</div>
+		<hr>
+		<table id="ZHIDING">
+			<!-- <tr>
+				<td>置顶:</td>
+				<td>进入专题先看看这个</td>
+			</tr>
+			<tr>
+				<td>置顶:</td>
+				<td>进入专题先看看这个</td>
+			</tr>
+			<tr>
+				<td>置顶:</td>
+				<td>进入专题先看看这个</td>
+			</tr>
+			<tr>
+				<td>置顶:</td>
+				<td>进入专题先看看这个</td>
+			</tr> -->
+		<!--</table>
+		<hr>
+	</div>
+	<div class="page cssloader">
+		<div class="loader-inner ball-scale-multiple" id="message" style="width:100%">
+<!-- 			<div style="width:100%">
+				<div style="float:left;width:90px;height:50px">
+					<style>img {max-width: 100%;}</style><img style="width:100%;height:100%" alt="" src="http://www.meitiannongzi.com/NJK/uploadFiles/uploadImgs/20170527/b2bc0590ddd542e29b553dadf4df738e.jpg">
+				</div>
+				<table style="height:3;width:200px">
+					<tr style="height:30px">
+						<td style="float:left">实验作物:葡萄</td>
+						<td style="float:right">2017-05-06</td>
+					</tr>
+					<tr style="height:25px">
+						<td style="float:left">嘉宾:大胡茬子</td>
+						<td style="float:right">读三次发帖</td>
+					</tr>
+				</table>
+			</div>
+			直播地:广东省惠州市博罗县
+			<hr/> -->
+		<!--</div>
+	</div>
+	<div>
+		<p style="text-align: center">查看详细内容请点击下载农极客</p>
+		<style>img {max-width: 100%;}</style>
+		<span style="margin-top: -50px;"><a
+			href="http://a.app.qq.com/o/simple.jsp?pkgname=com.ylsoft.njk"
+			style="text-decoration: none; color: #5e80a6; font-weight: bold; margin-left: 10px; width: 90%"><img
+				src="images/fenxiang.png"></a></span>
+	</div>
+</body>
+</html>-->
+
+
+
+
+<!doctype html>
+<html>
+	<head>
+		<title>农极客直播</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0, user-scalable=no">
+		<link href="./css/activity.css" type="text/css" rel="stylesheet">
+		<link href="./css/10001.css" rel="stylesheet" media="screen and (min-width:1000px)">
+		<link href="./css/700-10001.css" rel="stylesheet" media="screen and (min-width:700px) and (max-width:1000px)">
+		<link href="./css/iphone61.css" rel="stylesheet" media="screen and (max-width:700px)">
+		<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.tips.js"></script>
+ <script type="text/javascript">
+    var url=location.href;
+    var strs= new Array(); //定义一数组 
+    strs=url.split("?");
+    var strs1=new Array();
+    strs1=strs[1].split("=");
+    var strs12=new Array();
+    strs12=strs1[1].split("&");
+  //微信分享朋友圈  
+    $(function(){  
+      /***用户点击分享到微信圈后加载接口接口*******/  
+        $.ajax({  
+            url : "http://m.nongjike.cn/NJK/app/WeiXin2",
+            type: "POST",
+            data:{url:location.href.split('#')[0],ACTIVITY_ID:strs12[0]},
+            dataType: "json",
+            ContentType:'application/json; charset=utf-8',
+            success: function(data){
+			    document.getElementById("SIMG").src =  data.activity.IMG;
+	            $.each(data.comm1, function(i, list){
+	            	//$('<tr  style="height:100px;font-size: 40px;"><td style="color:#32B4FF">置顶</td><td>'+list.SUBJECT+'</td></tr>').appendTo("#ZHIDING");
+					$('<tr id="scale-multiple1"><td style="color:#32B4FF">置顶</td><td>'+list.SUBJECT+'</td></tr>').appendTo("#ZHIDING");
+	            });
+	            $.each(data.comm2,function(i,list){
+					$('<div onclick="show(list.ACTIVITY_ID);" style="width:100%" id="scale-multiple"><div style="float: left;" id="scalable1"><img alt="" style="width:100%;height:100%" src='+list.IMG+'></div><table id="scalable2"><tr><td style="float: left; color: #32B4FF">实验作物:'+list.CROP+'</td><td style="float: right; color: #666666">'+list.DATE.split(" ")[0]+'</td></tr><tr><td style="float: left">嘉宾:'+list.NAME+'</td><td style="float: right; color: #666666">第'+list.COUNT+'次发帖</td></tr></table><span style="font-size: 1em; color: #999999">直播地:'+list.ADDRESS+'</span></div><hr>').appendTo("#message");
+	            	//$('<br/><div style="width:100%;height:200px"><div style="float:left;width:210px;height:150px"><style>img {max-width: 100%;}</style><img alt="" style="width: 100%; height: 100%" src='+list.IMG+'></div><table style="height:150px;width:750px;font-size: 40px;"><tr style="height:100px"><td style="float:left;color:#32B4FF">实验作物:'+list.CROP+'</td><td style="float:right;color:#666666">'+list.DATE.split(" ")[0]+'</td></tr><td style="float:left">嘉宾:'+list.NAME+'</td><td style="float:right;color:#666666">第'+list.COUNT+'次发帖</td></tr></table><br/><span style="font-size:2.5em;color:#999999">直播地:'+list.ADDRESS+'</span></div><br/><br/><hr/>').appendTo("#message")
+	            })
+/* 	            $.each(data.comm2, function(i, list){
+	            	$('<div style="width:100%"><div style="float:left;width:90px;height:50px"><style>img {max-width: 100%;}</style><img style="width:100%;height:100%" alt="" src='+list.IMG+'></div><table style="height:50px;width:200px"><tr style="height:30px"><td style="float:left">实验作物:'+list.CROP+'</td><td style="float:right">'+list.DATE.split(" ")+'</td></tr><td style="float:left">嘉宾:'+list.NAME+'</td><td style="float:right">'+list.COUNT+'</td></tr></table></div>直播地:'+list.ADDRESS+'<hr/>').appendTo("#message");
+	            } */
+				wx.config({
+                    //debug : true,
+                    appId: data.appId,  
+                    timestamp:data.timestamp,  
+                    nonceStr:data.nonceStr,  
+                    signature:data.signature,  
+                    jsApiList: ['onMenuShareTimeline','onMenuShareAppMessage','onMenuShareQQ','onMenuShareWeibo','onMenuShareQZone'] // 必填，需要使用的JS接口列表
+                });
+                  wx.ready(function(){
+                      wx.onMenuShareTimeline({//分享到朋友圈
+                          title: data.activity.TITLE, // 分享标题
+                          link:data.url, // 分享链接
+                          imgUrl:data.activity.IMG // 分享图标
+                      });
+                      wx.onMenuShareAppMessage({//分享给朋友
+                          title:data.activity.TITLE, // 分享标题
+                          desc: '我在农极客看到了一个很不错的直播，快来看看把.', // 分享描述
+                          link:data.url, // 分享链接
+                          imgUrl: data.activity.IMG // 分享图标
+                      });
+                      wx.onMenuShareQQ({//分享到QQ
+                          title: data.activity.TITLE, // 分享标题
+                          desc:'我在农极客看到了一个很不错的直播，快来看看把.', // 分享描述
+                          imgUrl:data.activity.IMG // 分享图标
+                      });
+                      wx.onMenuShareWeibo({//分享到腾讯微博
+                          title: data.activity.TITLE, // 分享标题
+                          desc: '我在农极客看到了一个很不错的直播，快来看看把.', // 分享描述
+                          link:data.url, // 分享链接
+                          imgUrl:data.activity.IMG // 分享图标
+                      });
+                      wx.onMenuShareQZone({//分享到QQ空间
+                          title: data.activity.TITLE, // 分享标题
+                          desc: '我在农极客看到了一个很不错的直播，快来看看把.', // 分享描述
+                          link:data.url, // 分享链接
+                          imgUrl:data.post.IMG // 分享图标
+                      });
+
+                      // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+                  });
+            }
+        });         
+      });  
+    </script>
+	</head>
+	<body>
+		<!-- header 部分 -->
+	<div id="header">
+		<div>
+			<div>
+				<style>img {max-width: 100%;}
+			</style>
+				<img style="width: 100%; height: 100%" id="SIMG" alt="图片" src="http://www.meitiannongzi.com/NJK/uploadFiles/uploadImgs/20170513/465b71e798264c5fa72cb74656ebc48f.png">
+			</div>
+			<hr>
+			<table id="ZHIDING">
+				<!--<tr id="scale-multiple1"><td style="color:#32B4FF">置顶</td><td>进入专题先看看这个</td></tr>
+				<tr id="scale-multiple1"><td style="color:#32B4FF">置顶</td><td>进入专题先看看这个</td></tr>
+				<tr id="scale-multiple1"><td style="color:#32B4FF">置顶</td><td>进入专题先看看这个</td></tr>
+				<tr id="scale-multiple1"><td style="color:#32B4FF">置顶</td><td>进入专题先看看这个</td></tr>!-->
+			</table>
+			<hr>
+		</div>
+		<div class="page cssloader">
+			<div class="loader-inner ball-scale-multiple" id="message" style="width: 100%">
+				<!--<div style="width:100%" id="scale-multiple">
+					<div style="float: left;" id="scalable1">
+						<img alt="" style="width:100%;height:100%" src="http://www.meitiannongzi.com/NJK/uploadFiles/uploadImgs/20170527/c0be36bdd5044aaa80dff9d441b0f669.jpg">
+					</div>
+					<table id="scalable2">
+						<tr style="">
+							<td style="float: left; color: #32B4FF">实验作物:葡萄</td>
+							<td style="float: right; color: #666666">2017-05-06</td>
+						</tr>
+						<tr>
+						<td style="float: left">嘉宾:大胡茬子</td>
+						<td style="float: right; color: #666666">第3次发帖</td>
+						</tr>
+					</table>
+					<span style="font-size: 1em; color: #999999">直播地:广东省惠州市博罗县 </span>
+				</div>
+				<hr>
+				<div style="width:100%" id="scale-multiple">
+					<div style="float: left;" id="scalable1">
+						<img alt="" style="width:100%;height:100%" src="http://www.meitiannongzi.com/NJK/uploadFiles/uploadImgs/20170527/c0be36bdd5044aaa80dff9d441b0f669.jpg">
+					</div>
+					<table id="scalable2">
+						<tr style="">
+							<td style="float: left; color: #32B4FF">实验作物:葡萄</td>
+							<td style="float: right; color: #666666">2017-05-06</td>
+						</tr>
+						<tr>
+						<td style="float: left">嘉宾:大胡茬子</td>
+						<td style="float: right; color: #666666">第3次发帖</td>
+						</tr>
+					</table>
+					<span style="font-size: 1em; color: #999999">直播地:广东省惠州市博罗县 </span>
+				</div>-->
+			</div>
+		</div>
+	</div>
+	<div>
+		<p style="text-align: center;font-size:20px;">查看详细内容请点击下载农极客</p>
+		<style>img {max-width: 100%;}</style>
+		<span style="margin-top: -50px;"><a
+			href="http://a.app.qq.com/o/simple.jsp?pkgname=com.ylsoft.njk"
+			style="text-decoration: none; color: #5e80a6; font-weight: bold; margin-left: 10px; width: 90%"><img
+				src="images/fenxiang.png"></a></span>
+	</div>
+	
+	<script type="text/javascript">	
+		//检索
+		function show(Id){
+			alert(Id)
+		}
+		</script>
+	</body>
+</html>

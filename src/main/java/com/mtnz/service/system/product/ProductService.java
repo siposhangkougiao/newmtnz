@@ -10,13 +10,14 @@ import com.mtnz.dao.DaoSupport;
 
 import com.mtnz.service.system.supplier.SupplierService;
 import com.mtnz.service.system.supplier.SupplieresService;
-import com.mtnz.sql.system.mysql.ProductMapper;
 import com.mtnz.sql.system.product.ProductImgMapper;
 import com.mtnz.sql.system.product.ProductNewMapper;
 import com.mtnz.util.PageData;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -31,6 +32,9 @@ public class ProductService {
 
     @Resource(name = "daoSupport")
     private DaoSupport daoSupport;
+
+
+
 
     public void save(PageData pd) throws Exception {
         daoSupport.save("ProductMapper.save",pd);
@@ -233,10 +237,17 @@ public class ProductService {
     public PageInfo selectList(Product product) {
         product.setPageSize(5);
         Product bean = new Product();
-        bean.setStatus(0);
+
         bean.setStoreId(product.getStoreId());
+        Example example = new Example(Product.class);
+        example.and().andEqualTo("storeId",product.getStoreId());
+        example.and().andEqualTo("status",0);
+        example.orderBy("productId").desc();
         PageHelper.startPage(product.getPageNumber(),product.getPageSize());
-        List<Product> list = productNewMapper.select(bean);
+        //List<Product> list = productNewMapper.select(bean);
+        System.out.println("===============>"+example);
+        List<Product> list = productNewMapper.selectByExample(example);
+
         /*Integer total = list.size();
         for (int i = 0; i < list.size(); i++) {
             Integer number = productNewMapper.selectOrderCount(list.get(i).getProductId());
@@ -293,4 +304,9 @@ public class ProductService {
 
         return (List<PageData>) daoSupport.findForList("ProductMapper.selectproductList",pd);
     }
+
+    public Map<String ,Object> stockTotal(Long storeId) throws Exception {
+        return productNewMapper.stockTotal(storeId);
+    }
+
 }

@@ -42,14 +42,58 @@ public class PreOrderDetail {
     @Column(name = "norms3")
     private String norms3;
 
+    @Column(name = "norms4")
+    private String norms4;
+
+    @Column(name = "norms5")
+    private String norms5;
+
+    @Column(name = "isThreeSales")
+    private String isThreeSales;
+
     @Column(name = "great_time")
     private Date great_time;
 
     @Column(name = "is_pass")
     private Integer is_pass;
 
+    @Column(name = "isli")
+    private Integer isli;
+
     @Column(name = "store_id")
     private Long store_id;
+
+    public Integer getIsli() {
+        return isli;
+    }
+
+    public void setIsli(Integer isli) {
+        this.isli = isli;
+    }
+
+    public String getNorms4() {
+        return norms4;
+    }
+
+    public void setNorms4(String norms4) {
+        this.norms4 = norms4;
+    }
+
+    public String getNorms5() {
+        return norms5;
+    }
+
+    public void setNorms5(String norms5) {
+        this.norms5 = norms5;
+    }
+
+    public String getIsThreeSales() {
+        return isThreeSales;
+    }
+
+    public void setIsThreeSales(String isThreeSales) {
+        this.isThreeSales = isThreeSales;
+    }
 
     public Long getId() {
         return id;

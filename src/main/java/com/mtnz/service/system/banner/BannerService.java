@@ -20,8 +20,11 @@ public class BannerService {
     public void save(PageData pd) throws Exception {
         daoSupport.save("BannerMapper.save",pd);
     }
+    public void delete(Long id) throws Exception {
+        daoSupport.save("BannerMapper.delete",id);
+    }
 
-    public List<PageData> findList(PageData pd) throws Exception {
+    public List<PageData> findList(String s, PageData pd) throws Exception {
         return (List<PageData>) daoSupport.findForList("BannerMapper.findList",pd);
     }
 
@@ -36,4 +39,7 @@ public class BannerService {
     public List<PageData> list(Page page) throws Exception {
         return (List<PageData>) daoSupport.findForList("BannerMapper.datalistPage",page);
     }
+
+
+
 }

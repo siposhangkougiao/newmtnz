@@ -81,4 +81,24 @@ public class AppUserNewController extends BaseController{
         return result;
     }
 
+    @RequestMapping(method = RequestMethod.POST,value = "/updateUserInfo")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Result updateUserInfo(@RequestBody SysAppUser sysAppUser){
+        logger.error("接收到的参数：{}",JSONObject.toJSONString(sysAppUser));
+        Result result = new Result(0,"成功");
+        try {
+            sysAppUserService.updateUserInfo(sysAppUser);
+        }catch (ServiceException e) {
+            logger.error("数据操作失败",e);
+            result.setCode(e.getExceptionCode());
+            result.setMsg(e.getMessage());
+        } catch (Exception e) {
+            logger.error("系统错误",e);
+            result.setCode(-101);
+            logger.error("系统错误",e);
+        }
+        return result;
+    }
+
+
 }

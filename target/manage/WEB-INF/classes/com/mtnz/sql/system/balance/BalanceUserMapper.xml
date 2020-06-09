@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BalanceUserMapper">
+
+
+    <select id="findUserbalanceByUserId" parameterType="pd" resultType="pd">
+        select * from balance_user where user_id = #{user_id}
+    </select>
+
+    <insert id="saveBalance">
+        insert into balance_user(name,balance,user_id,great_time)values (#{name},#{balance},#{user_id},NOW())
+    </insert>
+
+    <update id="editBalanceByUserIdUp">
+        update balance_user set balance =balance + #{balance} where user_id = #{user_id}
+    </update>
+
+    <update id="editBalanceByUserIdDown">
+        update balance_user set balance =balance - #{balance} where user_id = #{user_id}
+    </update>
+
+</mapper>

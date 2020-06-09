@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mtnz.controller.app.order.model.OrderGift;
+import com.mtnz.controller.app.store.model.Store;
+import com.mtnz.controller.app.store.model.StoreLose;
 import com.mtnz.controller.base.BaseController;
 import com.mtnz.dao.DaoSupport;
 import com.mtnz.service.system.agency.AgencyService;
@@ -17,8 +19,12 @@ import com.mtnz.service.system.order_pro.OrderProService;
 import com.mtnz.service.system.product.KunCunService;
 import com.mtnz.service.system.product.ProductService;
 import com.mtnz.service.system.sys_app_user.SysAppUserService;
+import com.mtnz.sql.system.store.StoreLoseMapper;
+import com.mtnz.sql.system.store.StoreMapper;
 import com.mtnz.util.DateUtil;
 import com.mtnz.util.PageData;
+import com.mtnz.util.SmsBao;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -58,6 +64,10 @@ public class OrderKuncunService extends BaseController{
     private BalanceService balanceService;
     @Resource(name = "orderGiftService")
     private OrderGiftService orderGiftService;
+    @Autowired
+    private StoreLoseMapper storeLoseMapper;
+    @Autowired
+    private StoreMapper storeMapper;
 
 
     public void save(PageData pd) throws Exception {
@@ -104,7 +114,7 @@ public class OrderKuncunService extends BaseController{
                             String owe_money,String data,String customer_id,String store_id,
                             String medication_date,String remarks,String uid,String open_bill ,String date
             ,Integer isli,BigDecimal integral,Long open_user,String remark,BigDecimal balance,
-                            List<OrderGift> orderGifts,Integer lose,Integer isfast) throws Exception {
+                            List<OrderGift> orderGifts,Integer lose,Integer isfast,Integer isSend) throws Exception {
         logBefore(logger,"销售开单");
         java.text.DecimalFormat df = new java.text.DecimalFormat("########.00");
         PageData pd=this.getPageData();
@@ -177,6 +187,7 @@ public class OrderKuncunService extends BaseController{
             }else{
                 pd_o.put("open_bill","");
             }
+            System.out.println("json参数===============》"+data);
             data = DateUtil.delHTMLTag(data);
             data = data.replace("\r", "");
             data = data.replace("\n", "");
@@ -185,8 +196,12 @@ public class OrderKuncunService extends BaseController{
             data = data.replace("/", "");
             data = data.replace(" ", "XINg");
             Gson gson = new Gson();
+            logger.error("解析之后的json是："+data);
+
             List<PageData> list = gson.fromJson(data, new TypeToken<List<PageData>>() {
             }.getType());   //获取订单商品列表
+
+            logger.error("解析之后的json是222："+data);
             BigDecimal oneprice = new BigDecimal(0);
             //查询员工的销售提成比例
             for (int i = 0; i <list.size() ; i++) {
@@ -223,6 +238,17 @@ public class OrderKuncunService extends BaseController{
             }
             pd_o.put("product_sale",oneprice);
             pd_o.put("total_sale",allprice);
+
+            StoreLose storeLose = new StoreLose();
+            storeLose.setStoreId(Long.valueOf(store_id));
+            StoreLose selectLose = storeLoseMapper.selectOne(storeLose);
+            if(selectLose!=null){
+                if(selectLose.getAutomatic()==1){
+                    pd_o.put("outboundStatus",1);
+                }else {
+                    pd_o.put("outboundStatus",0);
+                }
+            }
             orderInfoService.save(pd_o);//添加主表订单信息
             //处理赠品
             if(orderGifts!=null&&orderGifts.size()>0){
@@ -481,6 +507,8 @@ public class OrderKuncunService extends BaseController{
                                 .subtract(numsli));
                     }
                     productService.editNumli(list.get(i));//更新商品库存信息
+
+
                     //添加库存记录
                     List<PageData> listone = new ArrayList<>();
                     //list.get(i).put("li_num",zong1.divide(new BigDecimal(product.get("norms1").toString()),2));
@@ -608,7 +636,7 @@ public class OrderKuncunService extends BaseController{
                             save(pd_pp);//添加订单库存信息
                         }
                     }
-                    productService.editNum(list.get(i));//更新商品库存信息
+
                     //添加库存记录
                     List<PageData> listone = new ArrayList<>();
                     //  list.get(i).put("li_num",new BigDecimal(0));
@@ -617,6 +645,14 @@ public class OrderKuncunService extends BaseController{
                     list.get(i).put("now_number",new BigDecimal(0));
                     listone.add(list.get(i));
                     kunCunService.batchSavess(listone,store_id,DateUtil.getTime(),"0",customer_id,pd_o.get("order_info_id").toString(),"1",pd_o.get("order_info_id").toString());
+                    if(list.get(i).get("isThreeSales").toString().equals("0.0")){ //如果是按三级单位购买的
+                        productService.editNum(list.get(i));//更新商品库存信息
+                    }else {
+                        BigDecimal bigDecimal = new BigDecimal(list.get(i).get("num").toString()).multiply(new BigDecimal(list.get(i).get("norms4").toString()));
+                        list.get(i).put("num",bigDecimal);
+                        productService.editNum(list.get(i));//更新商品库存信息
+                    }
+
                 }
             }
             Double owe=0.0;
@@ -652,6 +688,28 @@ public class OrderKuncunService extends BaseController{
             pd.put("customer_id",customer_id);
             pd.put("order_number",no);
             pd.put("order_info_id",pd_o.get("order_info_id"));
+
+            if(isSend==1){
+                Store store = new Store();
+                store.setStoreId(Long.valueOf(store_id));
+                Store stores = storeMapper.selectByPrimaryKey(store);
+                if(stores.getNumber().compareTo(0)==-1){
+                    pd.clear();
+                    pd.put("code","2");
+                    pd.put("message","短信剩余条数不足，请充值!");
+                    pd.put("status",statuss);
+                    return mapper.writeValueAsString(pd);
+                }
+                StringBuffer product_name = new StringBuffer();
+                StringBuffer product_price = new StringBuffer();
+                //List<PageData>
+                for (int i = 0; i <list.size() ; i++) {
+                    product_name.append(list.get(i).get("product_name").toString());
+                    product_price.append(list.get(i).get("product_price").toString());
+                }
+                SmsBao smsBao = new SmsBao();
+                smsBao.sendSms(stores.getName(),phone,product_name.toString(),product_price.toString());
+            }
         }
         String str="";
         try {
@@ -662,7 +720,7 @@ public class OrderKuncunService extends BaseController{
         return str;
     }
 
-    public String saveOrders(String name,String phone,String status,
+    public String saveSupplierOrder(String name,String phone,String status,
                              String total_money,String money,String discount_money,
                              String owe_money,String data,String customer_id,String store_id,
                              String medication_date,String remarks,String uid) throws Exception{

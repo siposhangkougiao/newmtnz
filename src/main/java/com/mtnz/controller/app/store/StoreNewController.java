@@ -51,6 +51,30 @@ public class StoreNewController extends BaseController{
         return result;
     }
 
+    /**
+     * 设置店铺自动出库
+     * @param storeLose
+     * @return
+     */
+    @RequestMapping(value = "/saveAuto",method = RequestMethod.POST)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Result saveAuto(@RequestBody StoreLose storeLose){
+        logger.error("接收到的参数：{}",JSONObject.toJSONString(storeLose));
+        Result result = new Result(0,"成功");
+        try {
+            storeService.insert(storeLose);
+        }catch (ServiceException e) {
+            logger.error("数据操作失败",e);
+            result.setCode(e.getExceptionCode());
+            result.setMsg(e.getMessage());
+        } catch (Exception e) {
+            logger.error("系统错误",e);
+            result.setCode(-101);
+            logger.error("系统错误",e);
+        }
+        return result;
+    }
+
 
     /**
      * 查询店铺负库存设置

@@ -1,0 +1,352 @@
+<!--<!DOCTYPE html>
+<html>
+<head>
+ <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+ <script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript">
+var url=location.href;
+var strs= new Array(); //定义一数组 
+strs=url.split("?");
+var strs1=new Array();
+strs1=strs[1].split("=");
+var strs12=new Array();
+strs12=strs1[1].split("&");
+//微信分享朋友圈  
+$(function(){  
+  /***用户点击分享到微信圈后加载接口接口*******/  
+    $.ajax({  
+        url : "http://www.meitiannongzi.com/NJK/app/WeiXin5",
+        type: "POST",
+        data:{url:location.href.split('#')[0],FID:strs12[0]},
+        dataType: "json",
+        ContentType:'application/json; charset=utf-8',
+        success: function(data){
+            $("#subject").html(data.special.SPECIAL); 
+            $("#data").html(data.special.NAME+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"); 
+            $("#JIANJIE").html(data.special.MESSAGE); 
+            document.getElementById("subject").value = data.special.SPECIAL;
+            document.getElementById("description").content = data.special.SPECIAL;
+            document.getElementById("description2").content = data.special.MESSAGE;
+            document.getElementById("IMG1").content = data.special.IMG;
+            document.title = data.special.SPECIAL;
+            $.each(data.comm1, function(i, list){
+                $("<img src="+list.IMG+" style='width: 50px; margin: 60px auto auto 20px;'><div><div style='margin-left: 90px; margin-top: -40px; width: 60%;'><b>"+list.NAME+"</b><span>"+list.DATE.split(" ")[0]+"</span></div></div><p style='margin-left: 90px; width: 60%;'>"+list.JIANJIE+"</p>").appendTo("#message");
+            });
+            $.each(data.comm2, function(i, list){
+                $("<img src="+list.IMG+" style='width: 50px; margin: 60px auto auto 20px;'><div><div style='margin-left: 90px; margin-top: -40px; width: 60%;'><b>"+list.NAME+"</b><span>"+list.DATE.split(" ")[0]+"</span></div></div><p style='margin-left: 90px; width: 60%;'>"+list.MESSAGE+"</p>").appendTo("#comm");
+            });
+            wx.config({
+                //debug : true,
+                appId: data.appId,  
+                timestamp:data.timestamp,  
+                nonceStr:data.nonceStr,  
+                signature:data.signature,  
+                jsApiList: ['onMenuShareTimeline','onMenuShareAppMessage','onMenuShareQQ','onMenuShareWeibo','onMenuShareQZone'] // 必填，需要使用的JS接口列表
+            });
+              wx.ready(function(){
+                  wx.onMenuShareTimeline({//分享到朋友圈
+                      title: data.special.SPECIAL, // 分享标题
+                      link:data.url, // 分享链接
+                      imgUrl:data.special.IMG // 分享图标
+                  });
+                  wx.onMenuShareAppMessage({//分享给朋友
+                      title:data.special.SPECIAL, // 分享标题
+                      desc: data.special.MESSAGE, // 分享描述
+                      link:data.url, // 分享链接
+                      imgUrl: data.special.IMG // 分享图标
+                  });
+                  wx.onMenuShareQQ({//分享到QQ
+                      title: data.special.SPECIAL, // 分享标题
+                      desc:data.special.MESSAGE, // 分享描述
+                      imgUrl:data.special.IMG // 分享图标
+                  });
+                  wx.onMenuShareWeibo({//分享到腾讯微博
+                      title: data.special.SPECIAL, // 分享标题
+                      desc: data.special.MESSAGE, // 分享描述
+                      link:data.url, // 分享链接
+                      imgUrl:data.special.IMG // 分享图标
+                  });
+                  wx.onMenuShareQZone({//分享到QQ空间
+                      title: data.special.SPECIAL, // 分享标题
+                      desc: data.special.MESSAGE, // 分享描述
+                      link:data.url, // 分享链接
+                      imgUrl:data.special.IMG // 分享图标
+                  });
+
+                  // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+              });
+        }
+    });         
+  });  
+</script>
+<meta charset="UTF-8">
+<title>农极客</title>
+<meta name="keywords" id="keywords" content="农极客">
+<meta name="description" itemprop="description" content="这是要分享的内容" id="description2"/>
+<meta name="description" itemprop="name" content="我在农极客看到了一个很不错的商品，快来看看把." id="description">
+<meta itemprop="image" content="http://www.meitiannongzi.com/NJK/uploadFiles/uploadImgs/logo.png" id="IMG1"/>
+</head>
+<style>
+.height {
+    width: 100%;
+    height: 20px;
+}
+/*******上面css不用管***********/
+.line {
+    margin-left: 5%;
+    width: 90%;
+    height: 1px;
+    border-bottom: 1px dashed #b5b5b5;
+    position: relative;
+    margin-top: 35px;
+    margin-bottom: 30px;
+}
+
+.line p {
+    position: absolute;
+    display: block;
+    top: -35px;
+    left: 35%;
+    background: #f7f7f7;
+    text-align: center;
+    width: 100px;
+    font-size: 22px;
+    color: #999999;
+}
+img{
+	width:100%;
+	height:100%;
+}
+</style>    
+
+</head>
+<body style="width: 90%; margin: 0 auto; font-family: 微软雅黑; font-size:30px;">
+<h3 id="subject" style="text-align:center;"></h3>
+    <p>
+                发布人:<span id="data"></span>
+        <a href="http://a.app.qq.com/o/simple.jsp?pkgname=com.ylsoft.njk"  style="text-decoration:none; color:#5e80a6; font-weight:bold;margin-left:10px; width:90%">农极客</a>
+    <br/>
+    <span id="JIANJIE"></span>
+    </p>
+
+
+
+         <!-------看这个div-------------->
+       <!-- <div class="line">
+              <p>帖子</p>
+        </div>
+        <div id="message">
+    </div>
+
+<br/>
+<br/>
+<br/>
+
+
+        <!-------看这个div-------------->
+      <!--  <div class="line">
+              <p>评论</p>
+        </div>
+
+        <div id="comm">
+
+
+        </div>
+
+        <br/>
+        <br/>
+
+                    <div>
+             <p style="text-align:center">查看详细内容请点击下载农极客</p> 
+             <style>img{max-width:100%;}</style><span style="margin-top: -50px;"><a 
+
+href="http://a.app.qq.com/o/simple.jsp?pkgname=com.ylsoft.njk"  style="text-decoration:none; color:#5e80a6; font-weight:bold;margin-left:10px; width:90%"><img
+                src="images/fenxiang.png"></a></span>               
+        </div>
+
+</body>
+</html>  -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta content=”initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width” name=”viewport” />
+<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.tips.js"></script>
+<script type="text/javascript">
+var url=location.href;
+var strs= new Array(); //定义一数组 
+strs=url.split("?");
+var strs1=new Array();
+strs1=strs[1].split("=");
+var strs12=new Array();
+strs12=strs1[1].split("&");
+/* function show(){
+	alert("请下载农极客")
+} */
+//微信分享朋友圈  
+$(function(){  
+  /***用户点击分享到微信圈后加载接口接口*******/  
+    $.ajax({  
+        url : "http://www.meitiannongzi.com/NJK/app/WeiXin5",
+        type: "POST",
+        data:{url:location.href.split('#')[0],FID:strs12[0]},
+        dataType: "json",
+        ContentType:'application/json; charset=utf-8',
+        success: function(data){
+            document.getElementById("description").content = data.special.SPECIAL;
+            document.getElementById("description2").content = data.special.MESSAGE;
+            document.getElementById("IMG1").content = data.special.IMG;
+            document.getElementById("SIMG").src = data.special.IMG;
+            document.getElementById("JIANJIE").innerHTML = data.special.MESSAGE;
+            $.each(data.comm3, function(i, list){
+            	if(list.SIMG!=null){
+            		$('<table style="width:100%;height:200px;" onclick="show()"><tr style="height:100px"><td style="float:left"><div style="height:40px">'+list.SUBJECT+'</div><br/><br/><div>'+list.DATE.split(" ")[0]+' 点赞'+list.VIEWS+' 评论'+list.HUIFU+'</div></td><td style="float:right;width:300px;height:200px"><style>img{max-width:100%;}</style><img alt="" style="width: 100%; height: 100%" src='+list.SIMG+'></td></tr></table><hr/>').appendTo("#message");
+            	}else{
+            		$('<table style="width:100%;height:200px;"><tr style="height:100px"><td style="float:left"><div style="height:40px">'+list.SUBJECT+'</div><br/><br/><div>'+list.DATE.split(" ")[0]+' 点赞'+list.VIEWS+' 评论'+list.HUIFU+'</div></td></tr></table><hr/>').appendTo("#message");
+            	}
+               //$("<tr style='height:50px'><td style='float:left'><div style='height: 40px'>"+list.SUBJECT+"</div><div>"+list.DATE.split(" ")[0]+" 点赞"+list.VIEWS+" 评论"+list.HUIFU+"</div></td><td style='float:right'><img alt="" style='width: 110px; height: 60px' src='"+list.SIMG+"'></td></tr>").appendTo("#message");
+            });
+            $.each(data.comm1, function(i, list){
+            	$('<tr style="height:100px;"><td style="color:#32B4FF">'+list.KEYWORD1+':</td><td>'+list.SUBJECT+'</td></tr><br/><br/><br/>').appendTo("#ZHIDING");
+            });
+            
+            wx.config({
+                //debug : true,
+                appId: data.appId,  
+                timestamp:data.timestamp,  
+                nonceStr:data.nonceStr,  
+                signature:data.signature,  
+                jsApiList: ['onMenuShareTimeline','onMenuShareAppMessage','onMenuShareQQ','onMenuShareWeibo','onMenuShareQZone'] // 必填，需要使用的JS接口列表
+            });
+              wx.ready(function(){
+                  wx.onMenuShareTimeline({//分享到朋友圈
+                      title: data.special.SPECIAL, // 分享标题
+                      link:data.url, // 分享链接
+                      imgUrl:data.special.IMG // 分享图标
+                  });
+                  wx.onMenuShareAppMessage({//分享给朋友
+                      title:data.special.SPECIAL, // 分享标题
+                      desc: data.special.MESSAGE, // 分享描述
+                      link:data.url, // 分享链接
+                      imgUrl: data.special.IMG // 分享图标
+                  });
+                  wx.onMenuShareQQ({//分享到QQ
+                      title: data.post.SUBJECT, // 分享标题
+                      desc:data.special.MESSAGE, // 分享描述
+                      imgUrl:data.special.IMG // 分享图标
+                  });
+                  wx.onMenuShareWeibo({//分享到腾讯微博
+                      title: data.special.SPECIAL, // 分享标题
+                      desc: data.special.MESSAGE, // 分享描述
+                      link:data.url, // 分享链接
+                      imgUrl:data.special.IMG // 分享图标
+                  });
+                  wx.onMenuShareQZone({//分享到QQ空间
+                      title: data.special.SPECIAL, // 分享标题
+                      desc: data.special.MESSAGE, // 分享描述
+                      link:data.url, // 分享链接
+                      imgUrl:data.special.IMG // 分享图标
+                  });
+
+                  // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+              });
+        }
+    });         
+  });
+</script>
+<meta charset="UTF-8">
+<title>农极客专题</title>
+<meta name="keywords" id="keywords" content="农极客">
+<meta name="description" itemprop="description" content="这是要分享的内容" id="description2"/>
+<meta name="description" itemprop="name" content="我在农极客看到了一个很不错的商品，快来看看把." id="description">
+<meta itemprop="image" content="http://www.meitiannongzi.com/NJK/uploadFiles/uploadImgs/logo.png" id="IMG1"/>
+</head>
+<body style="font-size:40px;">
+<div>
+	<div style="font-size:30px;">
+	 	<style>img{max-width:100%;}</style><img id="SIMG" alt="图片" src="">
+		<span id="JIANJIE">作物缺失不同元素，作物表现的症状不同。专题主要讲述元素分类，缺素症状，常用肥料等方面知识。</span>
+	</div>
+	<hr>
+	 <table id="ZHIDING">
+	 	 <!-- <tr>
+			<td>专题导读:</td>
+			<td>进入专题先看看这个</td>
+		</tr>
+		<tr>
+			<td>专题导读:</td>
+			<td>进入专题先看看这个</td>
+		</tr>
+		<tr>
+			<td>专题导读:</td>
+			<td>进入专题先看看这个</td>
+		</tr>
+		<tr>
+			<td>专题导读:</td>
+			<td>进入专题先看看这个</td>
+		</tr> -->
+	 </table>
+	 <hr>
+</div>
+<div class="page cssloader">
+  <div class="loader-inner ball-scale-multiple" id="message">
+    
+				<!-- <tr style="height:70px">
+					<td style="float:left">
+						<div style="height: 40px">几种肥料对花生的作物</div>
+						<div>2017-05-13 点赞2 评论1</div>
+					</td>
+					<td style="float:right"><img alt="" style="width: 110px; height: 60px"
+						src="http://www.meitiannongzi.com/NJK/uploadFiles/uploadImgs/20170513/3b00631b0f25434a9e0f1572c37de4be.jpg"></td>
+				</tr>
+				<tr  style="height:70px">
+					<td style="float:left">
+						<div style="height: 40px">几种肥料对花生的作物</div>
+						<div>2017-05-13 点赞2 评论1</div>
+					</td>
+					<td style="float:right"><img alt="" style="width: 110px; height: 60px"
+						src="http://www.meitiannongzi.com/NJK/uploadFiles/uploadImgs/20170513/3b00631b0f25434a9e0f1572c37de4be.jpg"></td>
+				</tr>
+				<tr  style="height:70px">
+					<td style="float:left">
+						<div style="height: 40px">几种肥料对花生的作物</div>
+						<div>2017-05-13 点赞2 评论1</div>
+					</td>
+					<td style="float:right"><img alt="" style="width: 110px; height: 60px"
+						src="http://www.meitiannongzi.com/NJK/uploadFiles/uploadImgs/20170513/3b00631b0f25434a9e0f1572c37de4be.jpg"></td>
+				</tr>
+				<tr  style="height:70px">
+					<td style="float:left">
+						<div style="height: 40px">几种肥料对花生的作物</div>
+						<div>2017-05-13 点赞2 评论1</div>
+					</td>
+					<td style="float:right"><img alt="" style="width: 110px; height: 60px"
+						src="http://www.meitiannongzi.com/NJK/uploadFiles/uploadImgs/20170513/3b00631b0f25434a9e0f1572c37de4be.jpg"></td>
+				</tr> -->
+
+  
+  </div>
+</div>
+                    <div>
+             <p style="text-align:center">查看详细内容请点击下载农极客</p> 
+             <style>img{max-width:100%;}</style><span style="margin-top: -50px;"><a 
+
+href="http://a.app.qq.com/o/simple.jsp?pkgname=com.ylsoft.njk"  style="text-decoration:none; color:#5e80a6; font-weight:bold;margin-left:10px; width:90%"><img
+                src="images/fenxiang.png"></a></span>               
+        </div>
+        <script type="text/javascript">
+
+        function show(){
+        	alert("请下载农极客!")
+        } 
+        
+        function post(ID){
+        	alert(ID);
+        	window.location.href="http://www.meitiannongzi.com/NJK/static/jsp/activity_post.html?ACTIVITY_POST_ID="+ID 
+        } 
+        
+        </script>
+</body>
+</html>

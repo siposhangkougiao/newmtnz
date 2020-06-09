@@ -195,8 +195,6 @@ public class AppReturnController extends BaseController{
             pc6.put("customer_id",customer_id);
             balanceService.saveBalanceReturn(pc6);//记录退款是的账户变动
 
-
-
             if(yue.compareTo(new BigDecimal(0))==1){
                 PageData p7 = new PageData();
                 p7.put("user_id",customer_id);
@@ -284,11 +282,21 @@ public class AppReturnController extends BaseController{
                     list.get(i).put("now_number",backnumber);
                     //修改订单详情表数据
                     orderProService.editOrderKuncunli(list.get(i));
-                    //修改商品库存数量
-                    productService.editJiaNumsli(list.get(i));
-                    list.get(i).put("all_number",backnumber);
+
                     List<PageData> pageDataList = new ArrayList<>();
                     pageDataList.add(list.get(i));
+                    if(list.get(i).get("isThreeSales").toString().equals("0.0")){ //如果是按三级单位购买的
+                        list.get(i).put("all_number",backnumber);
+                        //修改商品库存数量
+                        productService.editJiaNumsli(list.get(i));
+                    }else {
+                        BigDecimal bigDecimal = new BigDecimal(list.get(i).get("num").toString()).multiply(new BigDecimal(list.get(i).get("norms4").toString()));
+                        list.get(i).put("num",bigDecimal);
+                        list.get(i).put("all_number",backnumber);
+                        //修改商品库存数量
+                        productService.editJiaNumsli(list.get(i));
+                    }
+
                     //添加库存表记录  status=5表示退货加数量
                     kunCunService.batchSavesli(pageDataList,store_id,DateUtil.getTime(),"5","0",order_info_id,pd_o.get("return_order_info_id").toString());
 
@@ -332,11 +340,21 @@ public class AppReturnController extends BaseController{
                     }
                     //修改订单详情表数据
                     orderProService.editOrderKuncun(list.get(i));
-                    //修改商品库存数量
-                    list.get(i).put("now_number",new BigDecimal(0));
-                    productService.editJiaNums(list.get(i));
                     List<PageData> pageDataList = new ArrayList<>();
                     pageDataList.add(list.get(i));
+
+                    if(list.get(i).get("isThreeSales").toString().equals("0.0")){ //如果是按三级单位购买的
+                        list.get(i).put("now_number",new BigDecimal(0));
+                        //修改商品库存数量
+                        productService.editJiaNums(list.get(i));
+                    }else {
+                        BigDecimal bigDecimal = new BigDecimal(list.get(i).get("num").toString()).multiply(new BigDecimal(list.get(i).get("norms4").toString()));
+                        list.get(i).put("num",bigDecimal);
+                        list.get(i).put("now_number",new BigDecimal(0));
+                        //修改商品库存数量
+                        productService.editJiaNums(list.get(i));
+                    }
+
                     //添加库存表记录  status=5表示退货加数量
                     kunCunService.batchSaves(pageDataList,store_id,DateUtil.getTime(),"5","0",order_info_id,pd_o.get("return_order_info_id").toString());
                 }
@@ -559,16 +577,17 @@ public class AppReturnController extends BaseController{
             pd.put("order_info_id",pdReturn.get("order_info_id"));
             Integer aax = integralService.findIntegralDetailsCountByOrderId(pd);
             if(aax>0){
+                //查找已退货未撤销积分明细
                 PageData pad = integralService.findIntegralDetailByOrderIdAndType(pd);
-                pad.put("status",2);
+                pad.put("status",2); //2是增加积分
                 pad.put("customer_id",pad.get("user_id"));
-                integralService.saveIntegralDetail(pad);
+                //integralService.saveIntegralDetail(pad);
                 pad.put("is_pass",1);
-                integralService.editIntegralDetailPassById(pad);
+                integralService.editIntegralDetailPassById(pad); //把积分类型置为撤销
                 PageData pageData = new PageData();
                 pageData.put("customer_id",pad.get("user_id"));
                 pageData.put("integral",pad.get("integral"));
-                integralService.editIntegral(pageData);
+                integralService.editIntegral(pageData);//增加积分
             }
             //处理赠品问题
             PageData giftPage = new PageData();
@@ -640,7 +659,15 @@ public class AppReturnController extends BaseController{
                     }
                     pdOrderpro.put("now_number",new BigDecimal(list.get(i).get("li_num").toString()));
                     orderProService.editOrderKuncunsli(pdOrderpro);
-                    productService.editJianNumsli(pdOrderpro);
+                    if(list.get(i).get("isThreeSales").toString().equals("0.0")){ //如果是按三级单位购买的
+                        pdOrderpro.put("now_number",new BigDecimal(list.get(i).get("li_num").toString()));
+                        productService.editJianNumsli(pdOrderpro);//更新商品库存信息
+                    }else {
+                        BigDecimal bigDecimal = new BigDecimal(list.get(i).get("li_num").toString()).multiply(new BigDecimal(list.get(i).get("norms4").toString()));
+                        pdOrderpro.put("now_number",bigDecimal);
+                        productService.editJianNumsli(pdOrderpro);//更新商品库存信息
+                    }
+//                    productService.editJianNumsli(pdOrderpro);
                 }else {
                     list.get(i).put("order_info_id",pdReturn.get("order_info_id").toString());
                     PageData pdOrderpro=orderProService.findOrderInfoProduct(list.get(i));
@@ -683,7 +710,16 @@ public class AppReturnController extends BaseController{
                     //pdOrderpro.put("num",list.get(i).get("num").toString());
                     pdOrderpro.put("num",new BigDecimal(list.get(i).get("num").toString()));
                     orderProService.editOrderKuncuns(pdOrderpro);
-                    productService.editJianNums(pdOrderpro);
+
+                    if(list.get(i).get("isThreeSales").equals(0)){ //如果是按三级单位购买的
+                        productService.editJianNums(pdOrderpro);//更新商品库存信息
+                    }else {
+                        BigDecimal bigDecimal = new BigDecimal(list.get(i).get("num").toString()).multiply(new BigDecimal(list.get(i).get("norms4").toString()));
+                        pdOrderpro.put("num",bigDecimal);
+                        productService.editJianNums(pdOrderpro);//更新商品库存信息
+                    }
+
+//                    productService.editJianNums(pdOrderpro);
                 }
 
             }

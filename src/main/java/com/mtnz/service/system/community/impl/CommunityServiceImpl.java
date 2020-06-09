@@ -6,20 +6,32 @@ import com.mtnz.controller.app.community.model.Community;
 import com.mtnz.controller.app.community.model.CommunityComments;
 import com.mtnz.controller.app.community.model.CommunityReport;
 import com.mtnz.controller.app.community.model.CommunityUser;
+import com.mtnz.controller.app.store.model.Store;
+import com.mtnz.controller.app.store.model.StoreUser;
 import com.mtnz.controller.app.user.model.SysAppUser;
 import com.mtnz.controller.base.ServiceException;
+import com.mtnz.entity.Page;
+import com.mtnz.service.system.banner.BannerService;
 import com.mtnz.service.system.community.CommunityService;
 import com.mtnz.sql.system.community.CommunityCommentsMapper;
 import com.mtnz.sql.system.community.CommunityMapper;
 import com.mtnz.sql.system.community.CommunityReportMapper;
 import com.mtnz.sql.system.community.CommunityUserMapper;
+import com.mtnz.sql.system.store.StoreMapper;
+import com.mtnz.sql.system.store.StoreUserMapper;
 import com.mtnz.sql.system.user.SysAppUserNewMapper;
+import com.mtnz.util.DateUtil;
+import com.mtnz.util.MyTimesUtil;
+import com.mtnz.util.PageData;
 import com.mtnz.util.QiniuUtils;
+import com.sun.corba.se.impl.ior.ObjectAdapterIdNumber;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +56,9 @@ public class CommunityServiceImpl implements CommunityService {
     @Resource
     CommunityReportMapper communityReportMapper;
 
+    @Autowired
+    private StoreUserMapper storeUserMapper;
+
     /**
      * 查询生意圈列表
      * @param community
@@ -52,9 +67,13 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public PageInfo select(Community community) {
         PageHelper.startPage(community.getPageNumber(),community.getPageSize());
-        List<Community> list = communityMapper.selectByCommunity(community);
+        Example CommunityExample = new Example(Community.class);
+        CommunityExample.setOrderByClause("id desc");
+        List<Community> list = communityMapper.selectByExample(CommunityExample);
         List<Long> ulist = new ArrayList<>();
+
         for (int i = 0; i < list.size(); i++) {
+            list.get(i).setViewTimeOne(com.mtnz.util.DateUtil.dateFormat(list.get(i).getCreatTime()));
             if(!ulist.contains(list.get(i).getUserId())){
                 ulist.add(list.get(i).getUserId());
             }
@@ -67,9 +86,20 @@ public class CommunityServiceImpl implements CommunityService {
                     ulist.add(commentsList.get(j).getUserId());
                 }
             }
+
+            Map<String,Object> map = storeUserMapper.findStoreIsPass(list.get(i).getUserId());
+            if(map==null){
+                list.get(i).setIsPass(0);
+            }else {
+                list.get(i).setIsPass((Integer)map.get("is_pass"));
+            }
+
             list.get(i).setCommentsList(commentsList);
             SysAppUser sysAppUser =sysAppUserNewMapper.selectByPrimaryKey(list.get(i).getUserId());
             list.get(i).setReleaseName(sysAppUser.getName());
+            list.get(i).setNickName(sysAppUser.getNickName());
+            list.get(i).setHeader(sysAppUser.getHeader());
+            list.get(i).setSignature(sysAppUser.getSignature());
         }
         Map<Long,String> map = new HashMap();
         if(ulist.size()>0){
@@ -307,4 +337,15 @@ public class CommunityServiceImpl implements CommunityService {
         }
         communityReportMapper.insertSelective(communityReport);
     }
+
+
+    @Override
+    public List<Map<String, Object>> getCommunityReportList() {
+        return communityReportMapper.getCommunityReportList();
+    }
+
+    public void updateStatus(CommunityReport communityReport){
+       communityReportMapper.updateByPrimaryKey(communityReport);
+    }
+
 }

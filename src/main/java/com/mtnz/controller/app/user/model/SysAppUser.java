@@ -1,7 +1,10 @@
 package com.mtnz.controller.app.user.model;
 
+import lombok.Data;
+
 import javax.persistence.*;
 
+@Data
 @Table(name = "sys_app_user")
 public class SysAppUser {
 
@@ -69,6 +72,16 @@ public class SysAppUser {
 
   @Column(name = "is_delete")
   private Integer isDelete;
+
+  @Column(name = "nickName")
+  private String nickName;
+
+  @Column(name = "header")
+  private String header;
+
+  @Column(name = "signature")
+  private String signature;
+
 
   public Long getUid() {
     return uid;

@@ -5,6 +5,10 @@ import com.github.pagehelper.PageInfo;
 import com.mtnz.controller.app.community.model.Community;
 import com.mtnz.controller.app.community.model.CommunityComments;
 import com.mtnz.controller.app.community.model.CommunityReport;
+import com.mtnz.entity.Page;
+
+import java.util.List;
+import java.util.Map;
 
 public interface CommunityService {
 
@@ -13,7 +17,7 @@ public interface CommunityService {
      * @param community
      * @return
      */
-    PageInfo select(Community community);
+    PageInfo select(Community community) throws Exception;
 
     /**
      * 发布动态
@@ -57,4 +61,9 @@ public interface CommunityService {
      * @param communityReport
      */
     void insertReport(CommunityReport communityReport);
+
+    List<Map<String,Object>> getCommunityReportList();
+
+    public void updateStatus(CommunityReport communityReport);
+
 }

@@ -127,7 +127,9 @@ public class AppSupplierController extends BaseController{
                 String filePath = PathUtil.getClasspath() + Const.FILEPATHIMG +"supplier/"+DateUtil.getDays()+"/"+ ffile; // 文件上传路径
                 boolean flag = ImageAnd64Binary.generateImage(img, filePath);
                 img = Const.SERVERPATH + Const.FILEPATHIMG+"supplier/"+DateUtil.getDays()+"/"+ ffile;
-            }else{
+            }else if(img.contains("http")){
+                pd.put("img",img);
+            }else {
                 img="";
             }
             if(management_img!=null&&!"".equals(management_img)){
@@ -221,6 +223,7 @@ public class AppSupplierController extends BaseController{
                     }else{
                         list.get(i).put("money","0.0");
                     }
+                    // 查询供应商销售总价
                     PageData pd_ccs=orderKuncunService.findSupplierProduct(list.get(i));
                     if(pd_ccs!=null&&!pd_ccs.get("money").toString().equals("0.0")){
                         list.get(i).put("sale_money",df.format(pd_ccs.get("money")));
@@ -555,6 +558,7 @@ public class AppSupplierController extends BaseController{
             Gson gson = new Gson();
             List<PageData> list = gson.fromJson(data, new TypeToken<List<PageData>>() {
             }.getType());   //获取订单商品列表
+
             for (int i = 0; i < list.size(); i++) {
                 list.get(i).put("nums",list.get(i).get("num"));
             }
@@ -569,15 +573,29 @@ public class AppSupplierController extends BaseController{
             }else{
                 owe=Double.valueOf(pd_s.get("owe").toString());
             }
+
+            kunCunService.batchSaves(list,store_id,DateUtil.getTime(),"2",supplier_id,pd.get("supplier_order_info_id").toString(),pd.get("supplier_order_info_id").toString());
+
             for(int i=0;i<list.size();i++){
                 if(list.get(i).get("product_id")!=null){
-                    double product_id=Double.valueOf(list.get(i).get("product_id").toString());
+                    PageData pageData = new PageData();
+                    pageData = list.get(i);
+                    double product_id=Double.valueOf(pageData.get("product_id").toString());
                     int product_ids=(int)product_id;
-                    list.get(i).put("product_id",product_ids);
-                    productService.editNumJia(list.get(i));
+                    pageData.put("product_id",product_ids);
+
+                    if(pageData.get("isThreeSales").toString().equals("0.0")){//如果是三级单位调整product.kuncun以三级单位为准
+                        pageData.put("nums",pageData.get("num"));
+                        pageData.put("num",pageData.get("num"));
+                    }else {
+                        BigDecimal bigDecimal = new BigDecimal(pageData.get("num").toString()).multiply(new BigDecimal(pageData.get("norms4").toString()));
+                        pageData.put("nums",bigDecimal);
+                        pageData.put("num",bigDecimal);
+
+                    }
+                    productService.editNumJia(pageData);
                 }
             }
-            kunCunService.batchSaves(list,store_id,DateUtil.getTime(),"2",supplier_id,pd.get("supplier_order_info_id").toString(),pd.get("supplier_order_info_id").toString());
             //处理预付款抵扣问题
             if(balance!=null){
                 SupplierBalanceOwe balanceOwe = new SupplierBalanceOwe();
@@ -918,9 +936,11 @@ public class AppSupplierController extends BaseController{
                     c= new BigDecimal(0);
                 }
                 //BigDecimal kus = list.get(i).getKucun().add(c);
+                //库存是product表的kucun加likucun之和
                 BigDecimal kus = new BigDecimal(list.get(i).get("kucun").toString()).add(c);
 
                 list.get(i).put("kucun",kus);
+                //TODO 三级单位库存改变情况
             }
             Map<String, Object> map = new HashedMap();
             map.put("object",list);
@@ -1071,7 +1091,13 @@ public class AppSupplierController extends BaseController{
             kunCunService.editRevokes(pd);
             List<PageData> listSu=supplierOrderProService.findList(pd);
             for(int i=0;i<listSu.size();i++){
-                productService.editNum(listSu.get(i));
+                if(listSu.get(i).get("isThreeSales").toString().equals("0")){ //如果是按三级单位购买的
+                    productService.editNum(listSu.get(i));//更新商品库存信息
+                }else {
+                    BigDecimal bigDecimal = new BigDecimal(listSu.get(i).get("num").toString()).multiply(new BigDecimal(listSu.get(i).get("norms4").toString()));
+                    listSu.get(i).put("num",bigDecimal);
+                    productService.editNum(listSu.get(i));//更新商品库存信息
+                }
             }
             //处理抵扣金额
             SupplierBalanceOrder supplierBalanceOrder = new SupplierBalanceOrder();
@@ -1155,6 +1181,8 @@ public class AppSupplierController extends BaseController{
             Gson gson = new Gson();
             List<PageData> list = gson.fromJson(data, new TypeToken<List<PageData>>() {
             }.getType());   //获取订单商品列表
+
+            List<PageData> kucunList = new ArrayList<>();
             for(int i=0;i<list.size();i++){
                 list.get(i).put("all_number",new BigDecimal(0));
                 list.get(i).put("now_number",new BigDecimal(0));
@@ -1195,12 +1223,20 @@ public class AppSupplierController extends BaseController{
                         }
                     }
                 }
-                productService.editNum(list.get(i));
+
                 list.get(i).put("return_supplier_order_info_id",pd_s.get("return_supplier_order_info_id").toString());
                 returnSupplierOrderProService.save(list.get(i));
-
+                kucunList.add(list.get(i));
+                if(list.get(i).get("isThreeSales").toString().equals("0.0")){ //如果是按三级单位购买的
+                    productService.editNum(list.get(i));//更新商品库存信息
+                }else {
+                    BigDecimal bigDecimal = new BigDecimal(list.get(i).get("num").toString()).multiply(new BigDecimal(list.get(i).get("norms4").toString()));
+                    list.get(i).put("num",bigDecimal);
+                    productService.editNum(list.get(i));//更新商品库存信息
+                }
             }
-            kunCunService.batchSavess(list,store_id,DateUtil.getTime(),"4",pd_s.get("supplier_id").toString(),pd_s.get("supplier_order_info_id").toString(),"1",pd_s.get("return_supplier_order_info_id").toString());
+            kunCunService.batchSavess(kucunList,store_id,DateUtil.getTime(),"4",pd_s.get("supplier_id").toString(),pd_s.get("supplier_order_info_id").toString(),"1",pd_s.get("return_supplier_order_info_id").toString());
+
             pd.clear();
             pd.put("code","1");
             pd.put("message","正确返回数据!");
@@ -1325,7 +1361,13 @@ public class AppSupplierController extends BaseController{
                 upkucun.setNums(kuCunBean.getNums().add(new BigDecimal(list.get(i).get("num").toString())));
                 kuCunNewService.updateNums(upkucun);
                 list.get(i).put("now_number",new BigDecimal(0));
-                productService.editJiaNums(list.get(i));
+                if(list.get(i).get("isThreeSales").equals(0)){ //如果是按三级单位购买的
+                    productService.editJiaNums(list.get(i));//更新商品库存信息
+                }else {
+                    BigDecimal bigDecimal = new BigDecimal(list.get(i).get("num").toString()).multiply(new BigDecimal(list.get(i).get("norms4").toString()));
+                    list.get(i).put("num",bigDecimal);
+                    productService.editJiaNums(list.get(i));//更新商品库存信息
+                }
             }
             pd.clear();
             pd.put("code","1");

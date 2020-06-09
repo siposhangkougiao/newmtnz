@@ -1,8 +1,11 @@
 package com.mtnz.service.system.order_info;
 
+import com.mtnz.controller.app.order.model.OrderInfo;
 import com.mtnz.dao.DaoSupport;
 import com.mtnz.entity.Page;
+import com.mtnz.sql.system.order_info.OrderInfoMapper;
 import com.mtnz.util.PageData;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -17,7 +20,19 @@ public class OrderInfoService {
 
     @Resource(name = "daoSupport")
     private DaoSupport daoSupport;
+    @Autowired
+    private OrderInfoMapper orderInfoMapper;
 
+    public void updateOrderInfo(Long order_info_id){
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setOrderInfoId(order_info_id);
+        OrderInfo info = orderInfoMapper.selectByPrimaryKey(orderInfo);
+        if(info!=null){
+            orderInfo.setOutboundStatus(1);
+            orderInfoMapper.updateByPrimaryKey(orderInfo);
+        }
+
+    }
 
     public void save(PageData pd) throws Exception {
         daoSupport.save("OrderInfoMapper.save",pd);

@@ -30,6 +30,9 @@ public class LoginHandlerInterceptor extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		String path = request.getServletPath();
+		String ip = request.getRemoteAddr();
+
+		System.out.println("请求的ip是:"+ip);
 		System.out.println("请求的路径是:"+path);
 		//System.out.println("ip:"+request.getHeader("ip"));
 		if(!path.equals("/app/user/login")&&!path.equals("/app/mystore/getcode")&&!path.equals("/app/mystore/saveStore")

@@ -170,6 +170,7 @@ public class AppCustomerController extends BaseController{
                         String filePath = PathUtil.getClasspath() + Const.FILEPATHIMG +"touxiang/"+DateUtil.getDays()+"/"+ ffile; // 文件上传路径
                         boolean flag = ImageAnd64Binary.generateImage(img, filePath);
                         img = Const.SERVERPATH + Const.FILEPATHIMG+"touxiang/"+DateUtil.getDays()+"/"+ ffile;
+                        System.out.println(">>>>"+img);
                     }else if(IStatus.equals("0")){
                         img=img;
                     }else if(IStatus.equals("2")){
@@ -413,22 +414,27 @@ public class AppCustomerController extends BaseController{
                     pd.put("customer_id",listPhone.get(0).get("customer_id").toString());
                     return mapper.writeValueAsString(pd);
                 }
-                if(img!=null&&!"".equals(img)){
-                    String ffile1 = this.get32UUID() + ".jpg";
-                    String filePath2 = PathUtil.getClasspath() + Const.FILEPATHIMG + "touxiang/" + DateUtil.getDays(); // 文件上传路径
-                    File file = new File(filePath2, ffile1);
-                    if (!file.exists()) {
-                        if (!file.getParentFile().exists()) {
-                            file.getParentFile().mkdirs();
-                        }
-                    }
-                    String ffile = this.get32UUID() + ".jpg";
-                    String filePath = PathUtil.getClasspath() + Const.FILEPATHIMG +"touxiang/"+DateUtil.getDays()+"/"+ ffile; // 文件上传路径
-                    boolean flag = ImageAnd64Binary.generateImage(img, filePath);
-                    img = Const.SERVERPATH + Const.FILEPATHIMG+"touxiang/"+DateUtil.getDays()+"/"+ ffile;
-                }else{
-                    img="";
-                }
+                 if(img.contains("http")){
+                    pd.put("img",img);
+                } else {
+                     if (img != null && !"".equals(img)) {
+                         String ffile1 = this.get32UUID() + ".jpg";
+                         String filePath2 = PathUtil.getClasspath() + Const.FILEPATHIMG + "touxiang/" + DateUtil.getDays(); // 文件上传路径
+                         File file = new File(filePath2, ffile1);
+                         if (!file.exists()) {
+                             if (!file.getParentFile().exists()) {
+                                 file.getParentFile().mkdirs();
+                             }
+                         }
+                         String ffile = this.get32UUID() + ".jpg";
+                         String filePath = PathUtil.getClasspath() + Const.FILEPATHIMG + "touxiang/" + DateUtil.getDays() + "/" + ffile; // 文件上传路径
+                         boolean flag = ImageAnd64Binary.generateImage(img, filePath);
+                         img = Const.SERVERPATH + Const.FILEPATHIMG + "touxiang/" + DateUtil.getDays() + "/" + ffile;
+                     } else {
+                         img = "";
+                     }
+                 }
+                System.out.println(">>>> customer img= "+img);
                 pd.put("input_date", DateUtil.getTime());
                 pd.put("billing_date","");
                 pd.put("owe","0");
@@ -925,10 +931,11 @@ public class AppCustomerController extends BaseController{
                 PageData pd_c=storeService.findById(pd);
                 count = MessageSend.getCount(message).toString();
                 if(Integer.valueOf(pd_c.get("number").toString())>Integer.valueOf(count)){
-                    /*SmsBao sms=new SmsBao();
-                    String result= sms.sendSMSstord(data,message,pd_c.getString("name"));*/
+                    SmsBao sms=new SmsBao();
+                    String result= sms.sendSMSstord(data,message,pd_c.getString("name"));
                     SendMessageResult messageResult = MessageSend.sendMessage(data,"【"+pd_c.get("name").toString()+"】"+message+",回T退订");
                     System.out.println(">>>>>>返回的数据是"+ JSONObject.toJSONString(messageResult));
+
                     if(messageResult.getResult().equals(0)){
                         pd_c.put("count",count);
                         storeService.updateNumber(pd);
@@ -955,7 +962,7 @@ public class AppCustomerController extends BaseController{
                 pd.put("number",pd_cc.get("number").toString());
             }catch (Exception e){
                 pd.clear();
-                pd.put("cide","2");
+                pd.put("code","2");
                 pd.put("message","程序出错,请联系管理员!");
                 e.printStackTrace();
             }
@@ -967,6 +974,7 @@ public class AppCustomerController extends BaseController{
         } catch (Exception e) {
             e.printStackTrace();
         }
+        logger.error(str);
         return str;
     }
 

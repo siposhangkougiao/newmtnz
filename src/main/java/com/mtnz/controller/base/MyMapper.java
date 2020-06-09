@@ -1,6 +1,6 @@
 package com.mtnz.controller.base;
 
-import tk.mybatis.mapper.additional.insert.InsertListMapper;
+import tk.mybatis.mapper.common.special.InsertListMapper;
 import tk.mybatis.mapper.common.BaseMapper;
 import tk.mybatis.mapper.common.ConditionMapper;
 import tk.mybatis.mapper.common.ExampleMapper;

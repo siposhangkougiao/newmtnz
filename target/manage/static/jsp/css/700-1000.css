@@ -1,0 +1,30 @@
+/* 灞忓箷鍒嗚鲸鐜囧搴︿负700-1000鏃�*/
+
+#header{
+	height:480px;
+}
+.wrapper,.nav{
+	display:none;
+	float:none;
+}
+.logo{
+	margin:2% 40%;
+	float:none;
+}
+.header-bottom {
+    height:48px;
+    margin-top:-2%;
+}
+.logo img{
+	height:20px;
+	line-height:48px;
+}
+
+
+/* 闅愯棌鐨勪簩绾ц彍鍗�*/
+.user{
+	display:block;
+}
+.list{
+	display:block;
+}

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mtnz.controller.base.BaseController;
+import com.mtnz.controller.base.Result;
+import com.mtnz.controller.base.ServiceException;
 import com.mtnz.entity.Page;
 import com.mtnz.service.system.order_info.OrderInfoService;
 import com.mtnz.service.system.order_pro.OrderProService;
@@ -16,10 +18,10 @@ import org.apache.commons.collections.map.HashedMap;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
-import javax.xml.rpc.ServiceException;
 import java.io.File;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -776,6 +778,10 @@ public class AppProductController extends BaseController{
         return str;
     }
 
+
+
+
+
     /**
      * 查询商品
      * @param store_id 店铺ID
@@ -786,7 +792,7 @@ public class AppProductController extends BaseController{
     @ResponseBody
     public String findProduct(String store_id,String pageNum,String type){
         logBefore(logger,"查询商品");
-        PageData pd=this.getPageData();
+        PageData pd=this.getPageData();//获取请求参数
         //Page page=new Page();
         if(store_id==null||store_id.length()==0){
             pd.clear();
@@ -807,10 +813,10 @@ public class AppProductController extends BaseController{
                 Integer pageNumber = Integer.valueOf(pageNum);
                 Integer pageSize = 10;
                 //PageHelper.startPage(pageNumber,pageSize);
-                List<PageData> lista=productService.selectproductList(pd);
+                List<PageData> lista=productService.selectproductList(pd);//查询商品列表
                 int startIndex = (pageNumber - 1) * pageSize;
                 int endIndex = Math.min(startIndex + pageSize,lista.size());
-                List<PageData> list = lista.subList(startIndex,endIndex);
+                List<PageData> list = lista.subList(startIndex,endIndex);//显示商品列表
 
                 com.github.pagehelper.Page page = new com.github.pagehelper.Page(pageNumber, pageSize);
                 page.setTotal(lista.size());
@@ -832,7 +838,7 @@ public class AppProductController extends BaseController{
 
                     BigDecimal c = null;
                     try {
-                        c = a.divide(b,4);
+                        c = a.divide(b,4);//likucun/规格
                     } catch (Exception e) {
                         c= new BigDecimal(0);
                     }
@@ -854,7 +860,7 @@ public class AppProductController extends BaseController{
                 }*/
                 //开始计算总进货价
                 BigDecimal priceaa = new BigDecimal(0);
-                for (int i = 0; i <lista.size() ; i++) {
+                /*for (int i = 0; i <lista.size() ; i++) {
                     //if(Integer.valueOf(String.valueOf(list.get(i).get("kucun")))>0){
                     if(new BigDecimal(String.valueOf(lista.get(i).get("kucun"))).compareTo(new BigDecimal(0))>0){
                         PageData kucun= new PageData();
@@ -868,11 +874,11 @@ public class AppProductController extends BaseController{
                                 BigDecimal a = new BigDecimal(pricelist.get(j).get("likucun").toString());
                                 BigDecimal b = new BigDecimal(lista.get(i).get("norms1").toString());
                                 BigDecimal c = new BigDecimal(pricelist.get(j).get("purchase_price").toString());
-                                priceaa = priceaa.add(a.divide(b,4).multiply(c));
+                                priceaa = priceaa.add(a.divide(b,4).multiply(c));// 0/100*10
                             }
                         }
                     }
-                }
+                }*/
                 priceaa.setScale(2,BigDecimal.ROUND_HALF_UP);
                 pd.clear();
                 pd.put("object",map);
@@ -894,7 +900,165 @@ public class AppProductController extends BaseController{
         } catch (Exception e) {
             e.printStackTrace();
         }
+        logger.error("查询商品返回参数------》："+str);
         return str;
+    }
+
+
+    /**
+     * 查询商品
+     * @param store_id 店铺ID
+     * @param pageNum  页码
+     * @return
+     */
+    @RequestMapping(value = "findProductList",produces = "text/html;charset=UTF-8")
+    @ResponseBody
+    public String findProductList(String store_id,String pageNum,String type){
+        logBefore(logger,"查询商品");
+        PageData pd=this.getPageData();//获取请求参数
+        //Page page=new Page();
+        if(store_id==null||store_id.length()==0){
+            pd.clear();
+            pd.put("code","2");
+            pd.put("message","缺少参数");
+        }else{
+            try{
+                if(pd.containsKey("pageSize")){
+                    pd.remove("pageSize");
+                }
+                String message="正确返回数据!";
+                if (pageNum == null || pageNum.length() == 0) {
+                    pageNum = "1";
+                }
+                /*Integer SHU1 = Integer.valueOf(pageNum) * 10;
+                pd.put("SHU1", SHU1 - 10);*/
+                //查询店铺库存的所有商品
+                Integer pageNumber = Integer.valueOf(pageNum);
+                Integer pageSize = 10;
+                //PageHelper.startPage(pageNumber,pageSize);
+                List<PageData> lista=productService.selectproductList(pd);//查询商品列表
+                int startIndex = (pageNumber - 1) * pageSize;
+                int endIndex = Math.min(startIndex + pageSize,lista.size());
+                List<PageData> list = lista.subList(startIndex,endIndex);//显示商品列表
+
+                com.github.pagehelper.Page page = new com.github.pagehelper.Page(pageNumber, pageSize);
+                page.setTotal(lista.size());
+                page.addAll(list);
+                PageInfo pageInfo = new PageInfo<>(page);
+                //查询店铺一共有多少个商品
+                //PageData pd_c=productService.findProductCount(pd);
+                for (int i=0,len=list.size();i<len;i++){
+                    //查询店铺的图片norms1
+                    List<PageData> list_img=productImgService.findList(list.get(i));
+                    list.get(i).put("img",list_img);
+                    BigDecimal a = new BigDecimal(list.get(i).get("likucun").toString());
+                    BigDecimal b = new BigDecimal(1);
+                    try {
+                        b = new BigDecimal(list.get(i).get("norms1").toString());
+                    }catch (Exception e){
+
+                    }
+
+                    BigDecimal c = null;
+                    try {
+                        c = a.divide(b,4);//likucun/规格
+                    } catch (Exception e) {
+                        c= new BigDecimal(0);
+                    }
+                    BigDecimal kus = new BigDecimal(list.get(i).get("kucun").toString()).add(c);
+                    list.get(i).put("kucun",kus);
+                }
+                /*Integer pageTotal;
+                if (Integer.valueOf(pd_c.get("count").toString()) % 10 == 0){
+                    pageTotal =Integer.valueOf(pd_c.get("count").toString()) / 10;
+                }else {
+                    pageTotal = Integer.valueOf(pd_c.get("count").toString()) / 10 + 1;
+                }*/
+                Map<String, Object> map = new HashedMap();
+                map.put("data",pageInfo.getList());
+                //下面计算价格的地方错误，需要修改
+                /*PageData pd_s=productService.findKuCun(pd);
+                if(pd_s!=null){
+                    moneg=pd_s.get("money").toString();
+                }*/
+                //开始计算总进货价
+                BigDecimal priceaa = new BigDecimal(0);
+                /*for (int i = 0; i <lista.size() ; i++) {
+                    //if(Integer.valueOf(String.valueOf(list.get(i).get("kucun")))>0){
+                    if(new BigDecimal(String.valueOf(lista.get(i).get("kucun"))).compareTo(new BigDecimal(0))>0){
+                        PageData kucun= new PageData();
+                        kucun.put("product_id",lista.get(i).get("product_id"));
+                        kucun.put("store_id",lista.get(i).get("store_id"));
+                        List<PageData> pricelist = productService.findProductPrice(kucun);
+                        for (int j = 0; j <pricelist.size() ; j++) {
+                            //System.out.println("數量："+pricelist.get(j).get("nums")+"单价是："+pricelist.get(j).get("purchase_price"));
+                            priceaa = priceaa.add(new BigDecimal(pricelist.get(j).get("nums").toString()).multiply(new BigDecimal(pricelist.get(j).get("purchase_price").toString())));
+                            if(pricelist.get(j).get("likucun")!=null){
+                                BigDecimal a = new BigDecimal(pricelist.get(j).get("likucun").toString());
+                                BigDecimal b = new BigDecimal(lista.get(i).get("norms1").toString());
+                                BigDecimal c = new BigDecimal(pricelist.get(j).get("purchase_price").toString());
+                                priceaa = priceaa.add(a.divide(b,4).multiply(c));// 0/100*10
+                            }
+                        }
+                    }
+                }*/
+                priceaa.setScale(2,BigDecimal.ROUND_HALF_UP);
+                pd.clear();
+                pd.put("object",map);
+                pd.put("code","1");
+                pd.put("message",message);
+                pd.put("pageTotal",String.valueOf(pageInfo.getPages()));
+                pd.put("money",priceaa);
+            }catch (Exception e){
+                pd.clear();
+                pd.put("code","2");
+                pd.put("message","程序出错,请联系管理员!");
+                e.printStackTrace();
+            }
+        }
+        ObjectMapper mapper=new ObjectMapper();
+        String str="";
+        try {
+            str= mapper.writeValueAsString(pd);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        logger.error("查询商品返回参数------》："+str);
+        return str;
+    }
+
+
+
+    /**
+     * 查询剩余库存成本
+     * @param storeId
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "stockTotal",method = RequestMethod.POST,produces = "application/json")
+    public Result stockTotal1(Long storeId){
+
+        Result result = new Result(0,"成功");
+
+        try {
+            Map<String,Object>totalPrice = productService.stockTotal(storeId);
+            if(totalPrice==null){
+                result.setData(0);
+            }else {
+                result.setData(totalPrice);
+            }
+
+        }catch (ServiceException e) {
+            logger.error("数据操作失败",e);
+            result.setCode(e.getExceptionCode());
+            result.setMsg(e.getMessage());
+        } catch (Exception e) {
+            logger.error("系统错误",e);
+            result.setCode(-101);
+            logger.error("系统错误",e);
+        }
+        return result;
+
     }
 
     /**
@@ -952,6 +1116,9 @@ public class AppProductController extends BaseController{
                             String filePath = PathUtil.getClasspath() + Const.FILEPATHIMG +DateUtil.getDays()+"/"+ ffile; // 文件上传路径
                             boolean flag = ImageAnd64Binary.generateImage(product_img, filePath);
                             product_img = Const.SERVERPATH + Const.FILEPATHIMG +DateUtil.getDays()+"/"+ ffile;
+                            System.out.println(">>>>>>1111"+filePath);
+                            System.out.println(">>>>>>2222"+Const.SERVERPATH);
+                            System.out.println(">>>>>>3333"+product_img);
                         }
                     }
                     if(kucun==null||kucun.length()==0){
@@ -1440,6 +1607,7 @@ public class AppProductController extends BaseController{
         String str="";
         try {
             str= mapper.writeValueAsString(pd);
+            System.out.println("返回参数是："+str);
         } catch (Exception e) {
             e.printStackTrace();
         }

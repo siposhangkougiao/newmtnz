@@ -76,7 +76,7 @@ public class PayComtroller extends BaseController{
         // 随机数
         String nonce_str = strReq;
         // 商品描述根据情况修改
-        String body = "喜开单";
+        String body = "xiKaiDan";
         // 商户订单号
         String out_trade_no = ORDER_NUMBER;
         // 总金额以分为单位，不带小数点
@@ -114,7 +114,9 @@ public class PayComtroller extends BaseController{
                 + "<total_fee>" + total_fee + "</total_fee>" + "<spbill_create_ip>" + spbill_create_ip
                 + "</spbill_create_ip>" + "<notify_url>" + notify_url + "</notify_url>" + "<trade_type>" + trade_type
                 + "</trade_type>" + "</xml>";
+
         System.out.println(xml);
+        xml = new String(xml.getBytes(),"ISO8859-1");
         String createOrderURL = "https://api.mch.weixin.qq.com/pay/unifiedorder";
         String prepay_id = "";
         try {

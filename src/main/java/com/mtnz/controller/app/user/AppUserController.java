@@ -16,7 +16,10 @@ import com.mtnz.service.system.store.StoreService;
 import com.mtnz.service.system.sys_app_user.SysAppUserService;
 import com.mtnz.service.system.user.LoginSaltService;
 import com.mtnz.service.system.yzm.YzmService;
+import com.mtnz.sql.system.store.StoreUserMapper;
 import com.mtnz.util.*;
+import com.sun.org.apache.bcel.internal.generic.IFNONNULL;
+import com.sun.org.apache.bcel.internal.generic.IFNULL;
 import org.apache.commons.collections.map.HashedMap;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -64,7 +67,8 @@ public class AppUserController extends BaseController {
     private MyStoreService myStoreService;
     @Resource
     private LoginSaltService loginSaltService;
-
+    @Resource
+    private StoreUserMapper storeUserMapper;
 
     /**
      * @param uid      用户ID
@@ -294,6 +298,10 @@ public class AppUserController extends BaseController {
                         map.put("phone", pd_u.getString("phone"));
                         map.put("name", pd_u.getString("name"));
                         map.put("identity", pd_u.get("identity").toString());
+                        map.put("nickName", pd_u.get("nickName").toString());
+                        map.put("header", pd_u.get("header").toString());
+                        map.put("signature", pd_u.get("signature").toString());
+
                         pd_u.put("login_date", DateUtil.getTime());
                         PageData userpage = new PageData();
                         userpage.put("user_id",pd_u.get("uid"));
@@ -424,7 +432,11 @@ public class AppUserController extends BaseController {
                         map.put("phone", pd_u.getString("phone"));
                         map.put("name", pd_u.getString("name"));
                         map.put("identity", pd_u.get("identity").toString());
+                        map.put("nickName", pd_u.get("nickName").toString());
+                        map.put("header", pd_u.get("header").toString());
+                        map.put("signature", pd_u.get("signature").toString());
                         pd_u.put("login_date", DateUtil.getTime());
+
                         PageData userpage = new PageData();
                         userpage.put("user_id",pd_u.get("uid"));
                         PageData user = integralService.findIntegralSetup(userpage);
@@ -543,6 +555,13 @@ public class AppUserController extends BaseController {
             pd.put("date", DateUtil.getTime());
             pd.put("login_date", DateUtil.getTime());
             sysAppUserService.save(pd);
+
+            StoreUser storeUser = new StoreUser();
+            storeUser.setUserId((Long) pd.get("uid"));
+            storeUser.setStoreId((Long) pd.get("store_id"));
+            storeUser.setStatus(0);
+            storeUser.setIsmr(1);
+            storeUserMapper.insert(storeUser);
             pd.clear();
             pd.put("code", "1");
             pd.put("msg", "操作成功！");
@@ -895,7 +914,11 @@ public class AppUserController extends BaseController {
             for (int i = 0; i < storeUsers.size(); i++) {
                 idlist.add(storeUsers.get(i).getStoreId());
             }
-            Integer count = storeService.selectSumNumber(idlist);
+            Integer count =0;
+            if (idlist !=null && idlist.size()!=0){
+                count = storeService.selectSumNumber(idlist);
+            }
+
             pd.clear();
             pd.put("code", "1");
             pd.put("message", "正确返回数据!");
@@ -1080,6 +1103,7 @@ public class AppUserController extends BaseController {
             String filePath = PathUtil.getClasspath() + Const.FILEPATHIMG + DateUtil.getDays() + "/" + ffile; // 文件上传路径
             boolean flag = ImageAnd64Binary.generateImage(qr_code, filePath);
             qr_code = Const.SERVERPATH + Const.FILEPATHIMG + DateUtil.getDays() + "/" + ffile;
+            System.out.println(">>>>>>>"+qr_code);
             pd.put("qr_code", qr_code);
             storeService.editQrCode(pd);
             pd.clear();

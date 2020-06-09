@@ -1,6 +1,10 @@
 package com.mtnz.controller.system.banner;
 
+import com.alibaba.fastjson.JSONObject;
+import com.mtnz.controller.app.community.model.Community;
 import com.mtnz.controller.base.BaseController;
+import com.mtnz.controller.base.Result;
+import com.mtnz.controller.base.ServiceException;
 import com.mtnz.entity.Page;
 import com.mtnz.service.system.banner.BannerService;
 import com.mtnz.util.Const;
@@ -12,8 +16,7 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
@@ -64,6 +67,9 @@ public class BannerController extends BaseController{
         }
         return mv;
     }
+
+
+
 
     // ===================================================================================================
 

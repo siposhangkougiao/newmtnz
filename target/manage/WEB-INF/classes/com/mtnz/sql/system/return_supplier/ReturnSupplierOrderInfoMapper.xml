@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ReturnSupplierOrderInfoMapper">
+    <insert id="save" parameterType="pd" useGeneratedKeys="true" keyProperty="return_supplier_order_info_id">
+        INSERT INTO return_supplier_order_info(
+              supplier_order_info_id,
+              supplier_id,
+              store_id,
+              uid,
+              order_number,
+              money,
+              owe_money,
+              total_money,
+              date,
+              remarks,
+              name,
+              gname,
+              phone,
+              status,
+              revokes,
+              open_bill,
+              return_date
+        )VALUES(
+              #{supplier_order_info_id},
+              #{supplier_id},
+              #{store_id},
+              #{uid},
+              #{order_number},
+              #{money},
+              #{owe_money},
+              #{total_money},
+              #{date},
+              #{remarks},
+              #{name},
+              #{gname},
+              #{phone},
+              #{status},
+              #{revokes},
+              #{open_bill},
+              #{return_date}
+        )
+    </insert>
+
+    <select id="datalistPage" parameterType="page" resultType="pd">
+        SELECT
+              return_supplier_order_info_id,
+              supplier_order_info_id,
+              supplier_id,
+              store_id,
+              uid,
+              order_number,
+              money,
+              owe_money,
+              total_money,
+              date,
+              remarks,
+              name,
+              gname,
+              phone,
+              status,
+              revokes,
+              open_bill,
+              return_date
+        FROM return_supplier_order_info
+        WHERE store_id=#{pd.store_id}
+        <if test="pd.startTime!=null and pd.startTime!=''">
+            and date &gt;=#{pd.startTime}
+        </if>
+        <if test="pd.endTime!=null and pd.endTime!=''">
+            and date &lt;=#{pd.endTime}
+        </if>
+        <if test="pd.name!=null and pd.name!=''">
+            and (
+            POSITION(#{pd.name} IN `name`)
+            or
+            POSITION(#{pd.name} IN `gname`)
+            )
+        </if>
+        <if test="pd.revokes!=null and pd.revokes!=''">
+          and revokes=#{pd.revokes}
+        </if>
+        ORDER BY date DESC
+    </select>
+
+
+    <select id="findSumMoney" parameterType="pd" resultType="pd">
+        SELECT SUM(money) as money FROM return_supplier_order_info
+        WHERE store_id=#{store_id}
+        <if test="startTime!=null and startTime!=''">
+            and date &gt;=#{startTime}
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and date &lt;=#{endTime}
+        </if>
+        <if test="name!=null and name!=''">
+            and (
+            POSITION(#{name} IN `name`)
+            or
+            POSITION(#{name} IN `gname`)
+            )
+        </if>
+        <if test="revokes!=null and revokes!=''">
+            and revokes=#{revokes}
+        </if>
+    </select>
+
+    <select id="findById" parameterType="pd" resultType="pd">
+        SELECT
+            return_supplier_order_info_id,
+            supplier_order_info_id,
+            supplier_id,
+            store_id,
+            uid,
+            order_number,
+            money,
+            owe_money,
+            total_money,
+            date,
+            remarks,
+            name,
+            gname,
+            phone,
+            status,
+            revokes,
+            open_bill,
+            return_date
+        FROM return_supplier_order_info
+        WHERE return_supplier_order_info_id=#{return_supplier_order_info_id}
+    </select>
+
+
+    <select id="findLikeOrderInfo" parameterType="pd" resultType="pd">
+        SELECT
+            return_supplier_order_info_id,
+            supplier_order_info_id,
+            supplier_id,
+            store_id,
+            uid,
+            order_number,
+            money,
+            owe_money,
+            total_money,
+            date,
+            remarks,
+            name,
+            gname,
+            phone,
+            status,
+            revokes,
+            open_bill,
+            return_date
+        FROM return_supplier_order_info
+        where store_id=#{store_id} and
+        (
+            POSITION(#{name} IN `name`)
+            or
+            POSITION(#{name} IN phone)
+            or
+            POSITION(#{name} IN gname)
+        )
+        ORDER BY date DESC
+    </select>
+
+    <update id="editRevokes" parameterType="pd">
+        UPDATE return_supplier_order_info
+        SET revokes=#{revokes}
+        WHERE return_supplier_order_info_id=#{return_supplier_order_info_id}
+    </update>
+
+
+</mapper>

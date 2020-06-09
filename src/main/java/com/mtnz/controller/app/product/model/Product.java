@@ -31,6 +31,15 @@ public class Product {
   @Column(name = "norms3")
   private String norms3;
 
+  @Column(name = "norms4")
+  private String norms4;
+
+  @Column(name = "norms5")
+  private String norms5;
+
+  @Column(name = "threePurchase")
+  private String threePurchase;
+
   @Column(name = "product_price")
   private String productPrice;
 
@@ -78,6 +87,17 @@ public class Product {
 
   @Column(name = "type2")
   private String type2;
+
+  @Column(name = "lose")
+  private Integer lose;
+  @Column(name = "level1_price")
+  private BigDecimal level1Price;
+  @Column(name = "level2_price")
+  private BigDecimal level2Price;
+  @Column(name = "level3_price")
+  private BigDecimal level3Price;
+  @Column(name = "isThreeSales")
+  private Integer isThreeSales;
 
   @Transient
   private String name;
@@ -233,7 +253,7 @@ public class Product {
     this.date = date;
   }
 
-  public Integer getStatus() {
+  public Integer getStatus(int i) {
     return status;
   }
 
@@ -315,6 +335,70 @@ public class Product {
 
   public String getType2() {
     return type2;
+  }
+
+  public String getNorms4() {
+    return norms4;
+  }
+
+  public void setNorms4(String norms4) {
+    this.norms4 = norms4;
+  }
+
+  public String getNorms5() {
+    return norms5;
+  }
+
+  public void setNorms5(String norms5) {
+    this.norms5 = norms5;
+  }
+
+  public String getThreePurchase() {
+    return threePurchase;
+  }
+
+  public void setThreePurchase(String threePurchase) {
+    this.threePurchase = threePurchase;
+  }
+
+  public Integer getLose() {
+    return lose;
+  }
+
+  public void setLose(Integer lose) {
+    this.lose = lose;
+  }
+
+  public BigDecimal getLevel1Price() {
+    return level1Price;
+  }
+
+  public void setLevel1Price(BigDecimal level1Price) {
+    this.level1Price = level1Price;
+  }
+
+  public BigDecimal getLevel2Price() {
+    return level2Price;
+  }
+
+  public void setLevel2Price(BigDecimal level2Price) {
+    this.level2Price = level2Price;
+  }
+
+  public BigDecimal getLevel3Price() {
+    return level3Price;
+  }
+
+  public void setLevel3Price(BigDecimal level3Price) {
+    this.level3Price = level3Price;
+  }
+
+  public Integer getIsThreeSales() {
+    return isThreeSales;
+  }
+
+  public void setIsThreeSales(Integer isThreeSales) {
+    this.isThreeSales = isThreeSales;
   }
 
   public void setType2(String type2) {

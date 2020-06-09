@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mtnz.sql.system.permissions.StorePermissionsMapper">
+
+
+    <select id="findPermission" resultType="java.util.Map">
+        select p.id,p.permissionsName,IFNULL(sp.permType,0) permType
+        from  store_permissions sp
+        right join permissions p on sp.permissionId = p.id
+        and sp.userId =#{userId} and sp.storeId= #{storeId}
+        order by p.id
+    </select>
+
+</mapper>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AdminRelationMapper">
+    <insert id="save" parameterType="pd">
+        INSERT INTO admin_relation(
+            uid,
+            store_id
+        )VALUES (
+            #{uid},
+            #{store_id}
+        )
+    </insert>
+
+    <select id="findList" parameterType="pd" resultType="pd">
+        SELECT
+            a.*,
+            s.name,
+            s.phone,
+            u.username,
+            u.name as uname,
+            s.province,
+            s.city,
+            s.county,
+            s.street,
+            s.address,
+            s.phoneTow,
+            s.business_img
+        FROM (
+            SELECT
+                uid,
+                store_id
+            FROM admin_relation
+            where uid=#{uid}
+        ) a
+        LEFT JOIN store s on s.store_id=a.store_id
+        LEFT JOIN sys_app_user u on u.store_id=a.store_id
+        <if test="name!=null and name!=''">
+          where (
+                    POSITION(#{name} IN s.name)
+                    OR
+                    POSITION(#{name} IN s.phone)
+                    OR
+                    POSITION(#{name} IN u.username)
+                    OR
+                    POSITION(#{name} IN u.name)
+                )
+        </if>
+    </select>
+</mapper>

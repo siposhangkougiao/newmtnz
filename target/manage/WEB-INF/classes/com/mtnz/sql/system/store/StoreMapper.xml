@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="StoreMapper">
+    <insert id="save" parameterType="pd" useGeneratedKeys="true" keyProperty="store_id">
+        INSERT INTO store(
+        name,
+        number,
+        address,
+        qr_code,
+        phone,
+        province,
+        city,
+        county,
+        street,
+        business_img,
+        phoneTow
+        <if test="is_pass !=null">
+            ,is_pass
+        </if>
+        )VALUE (
+        #{name},
+        #{number},
+        #{address},
+        #{qr_code},
+        #{phone},
+        #{province},
+        #{city},
+        #{county},
+        #{street},
+        #{business_img},
+        #{phoneTow}
+        <if test="is_pass !=null">
+            ,#{is_pass}
+        </if>
+        )
+    </insert>
+
+    <select id="findById" parameterType="pd" resultType="pd">
+        SELECT
+            store_id,
+            name,
+            number,
+            address,
+            qr_code,
+            phone,
+            province,
+            city,
+            county,
+            street,
+            business_img,
+            phoneTow
+        FROM store
+        WHERE store_id=#{store_id}
+    </select>
+
+    <select id="datalistPage" parameterType="page" resultType="pd">
+        SELECT
+            store_id,
+            name,
+            number,
+            address,
+            qr_code,
+            phone,
+            province,
+            city,
+            county,
+            street,
+            business_img,
+            phoneTow
+        FROM store
+        ORDER BY store_id DESC
+    </select>
+
+    <update id="updateNumber" parameterType="pd">
+        UPDATE store
+        SET number=number-#{count}
+        where store_id=#{store_id}
+    </update>
+
+    <update id="updateJiaNumber" parameterType="pd">
+        UPDATE store
+        SET number=number+#{count}
+        where store_id=#{store_id}
+    </update>
+
+    <update id="updateName" parameterType="pd">
+        UPDATE store
+        SET name=#{name}
+        <if test="phone!=null and phone!=''">
+            ,phone=#{phone}
+        </if>
+        <if test="address!=null and address!=''">
+            ,address=#{address}
+        </if>
+        <if test="province!=null and province!=''">
+            ,province=#{province}
+        </if>
+        <if test="city!=null and city!=''">
+            ,city=#{city}
+        </if>
+        <if test="county!=null and county!=''">
+            ,county=#{county}
+        </if>
+        <if test="street!=null and street!=''">
+            ,street=#{street}
+        </if>
+        where store_id=#{store_id}
+    </update>
+
+    <update id="editQrCode" parameterType="pd">
+        UPDATE store
+        SET qr_code=#{qr_code}
+        WHERE store_id=#{store_id}
+    </update>
+
+
+    <update id="editBusiness" parameterType="pd">
+        UPDATE store
+        SET business_img=#{business_img}
+        WHERE store_id=#{store_id}
+    </update>
+
+
+    <select id="findQuanBu" parameterType="pd" resultType="pd">
+        SELECT
+            s.store_id,
+            s.name,
+            s.number,
+            s.address,
+            s.qr_code,
+            s.phone,
+            s.province,
+            s.city,
+            s.county,
+            s.street,
+            s.business_img,
+            s.phoneTow,
+            ap.uid
+        FROM store s
+        LEFT JOIN sys_app_user ap on ap.store_id=s.store_id
+    </select>
+
+    <update id="editPhoneTow" parameterType="pd">
+        UPDATE store
+        SET phoneTow=#{username}
+        WHERE store_id=#{store_id}
+    </update>
+
+    <select id="findstorListById" parameterType="pd" resultType="pd">
+        select
+        s.*,
+        t.*
+        from store_user s
+        left join store t on s.store_id = t.store_id
+        where s.user_id = #{userId}
+    </select>
+
+    <insert id="saveStoreUser" parameterType="pd" useGeneratedKeys="true" keyProperty="id">
+        insert into store_user(
+        user_id,store_id,status,ismr) values (#{user_id},#{store_id},#{status},#{ismr});
+    </insert>
+
+    <update id="editCheckStore">
+        update store_user set ismr = #{ismr} where user_id = #{user_id}
+    </update>
+
+    <update id="editCheckStoreById">
+        update store_user set ismr = #{ismr} where store_id = #{store_id}
+    </update>
+
+    <update id="editStoreDetail">
+        update store
+        <set>
+            <if test="name !=null and name !=''">
+                name = #{name},
+            </if>
+            <if test="address !=null and address !=''">
+                address = #{address},
+            </if>
+            <if test="qr_code !=null and qr_code !=''">
+                qr_code = #{qr_code},
+            </if>
+            <if test="province !=null and province !=''">
+                province = #{province},
+            </if>
+            <if test="city !=null and city !=''">
+                city = #{city},
+            </if>
+            <if test="phoneTow !=null and phoneTow !=''">
+                phoneTow = #{phoneTow},
+            </if>
+            <if test="county !=null and county !=''">
+                county = #{county}
+            </if>
+        </set>
+        where store_id = #{store_id}
+    </update>
+
+    <update id="editStatus">
+        update store_user set status = #{status} where store_id = #{store_id}
+    </update>
+
+    <select id="findStoreOneByUId" parameterType="pd" resultType="pd">
+        select * from store where phoneTow = #{phoneTow} order by store_id asc limit 1
+    </select>
+</mapper>

@@ -119,7 +119,8 @@ public class StoreService {
             StoreLose beans= storeLoseMapper.selectOne(bean);
             StoreLose storeLose1 = new StoreLose();
             storeLose1.setId(beans.getId());
-            storeLose1.setStatus(storeLose.getStatus());
+            storeLose1.setStatus(beans.getStatus());
+            storeLose1.setAutomatic(storeLose.getAutomatic());
             storeLoseMapper.updateByPrimaryKeySelective(storeLose1);
         }else {
             storeLoseMapper.insertSelective(storeLose);
@@ -131,6 +132,7 @@ public class StoreService {
         if(bean==null){
             bean = new StoreLose();
             bean.setStatus(1);
+            bean.setAutomatic(1);
             bean.setStoreId(storeLose.getStoreId());
         }
         return bean;

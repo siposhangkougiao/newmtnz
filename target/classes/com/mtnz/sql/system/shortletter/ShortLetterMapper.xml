@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ShortLetterMapper">
+    <insert id="save" parameterType="pd">
+        insert into shortletter(
+            message,
+            store_id,
+            customer,
+            date,
+            number,
+            phone
+        ) VALUE (
+            #{message},
+            #{store_id},
+            #{customer},
+            #{date},
+            #{number},
+            #{phone}
+        )
+    </insert>
+
+
+    <select id="datalistPage" parameterType="page" resultType="pd">
+        SELECT
+            shortletter_id,
+            message,
+            store_id,
+            customer,
+            date,
+            number
+        FROM shortletter
+        where store_id=#{pd.store_id}
+        ORDER BY date DESC
+    </select>
+</mapper>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="WeProductMapper">
+    <insert id="save" parameterType="pd" useGeneratedKeys="true" keyProperty="product_id">
+        INSERT INTO we_product(
+        product_name,
+        product_price,
+        norms1,
+        norms2,
+        norms3,,
+        purchase_price,
+        production_enterprise,
+        product_img,
+        date,
+        orde_by,
+        bar_code,
+        bar_code_number
+        )VALUE (
+        #{product_name},
+        #{product_price},
+        #{norms1},
+        #{norms2},
+        #{norms3},
+        #{purchase_price},
+        #{production_enterprise},
+        #{product_img},
+        #{date},
+        #{orde_by},
+        #{bar_code},
+        #{bar_code_number}
+        )
+    </insert>
+
+    <select id="findById" parameterType="pd" resultType="pd">
+        SELECT
+        product_id,
+        store_id,
+        product_name,
+        product_price,
+        purchase_price,
+        production_enterprise,
+        product_img,
+        date,
+        norms1,
+        norms2,
+        norms3,
+        orde_by,
+        bar_code,
+        bar_code_number
+        FROM we_product
+        WHERE product_id=#{product_id}
+    </select>
+
+    <select id="findList" parameterType="pd" resultType="pd">
+         SELECT
+        product_id,
+        store_id,
+        product_name,
+        product_price,
+        purchase_price,
+        production_enterprise,
+        product_img,
+        date,
+        norms1,
+        norms2,
+        norms3,
+        orde_by,
+        bar_code,
+        bar_code_number
+        FROM we_product
+        <if test="name!=null and name!=''">
+           where POSITION(#{name} IN `product_name`)
+        </if>
+    </select>
+
+    <select id="datalistPage" parameterType="page" resultType="pd">
+        SELECT
+        product_id,
+        store_id,
+        product_name,
+        product_price,
+        purchase_price,
+        production_enterprise,
+        product_img,
+        date,
+        norms1,
+        norms2,
+        norms3,
+        orde_by,
+        bar_code,
+        bar_code_number
+        FROM we_product
+        ORDER BY date DESC
+    </select>
+
+    <update id="updateProduct" parameterType="pd">
+        UPDATE we_product
+        SET  product_name=#{product_name},
+        product_price=#{product_price},
+        norms1=#{norms1},
+        norms2=#{norms2},
+        norms3=#{norms3},
+        purchase_price=#{purchase_price},
+        production_enterprise=#{production_enterprise},
+        product_img=#{product_img},
+        orde_by=#{orde_by},
+        bar_code=#{bar_code},
+        bar_code_number=#{bar_code_number}
+        WHERE product_id=#{product_id}
+    </update>
+
+    <delete id="delete" parameterType="pd">
+        DELETE FROM we_product WHERE product_id=#{product_id}
+    </delete>
+
+    <update id="editImg" parameterType="pd">
+        UPDATE we_product
+        SET img=#{img}
+        WHERE product_id=#{product_id}
+    </update>
+</mapper>

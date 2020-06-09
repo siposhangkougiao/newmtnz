@@ -806,8 +806,10 @@ public class AppStoreController extends BaseController{
                 StoreLose selectLose = storeService.selectLose(storeLose);
                 if(selectLose!=null){
                     list.get(i).put("lose",selectLose.getStatus());
+                    list.get(i).put("automatic",selectLose.getAutomatic());
                 }else {
                     list.get(i).put("lose",1);
+                    list.get(i).put("automatic",1);
                 }
             }
             pd.clear();
@@ -1183,7 +1185,7 @@ public class AppStoreController extends BaseController{
         String partner = "1482116722";
         String appid = "wx3e8ef0db80a0580f";
         String appsecret = "278fc286264c9d8a96571752f88c3eb7";
-        String partnerkey = "5BCB0B1B9455219FF9628FA9DED938A2";
+        String partnerkey = "7de65fda4cca605c55c260d937a18121";
         Date now = new Date();
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmssSSS");
         String s = String.valueOf((int) ((Math.random() * 9 + 1) * 100));
@@ -1280,6 +1282,7 @@ public class AppStoreController extends BaseController{
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
+        logger.error("返回参数："+str);
         return str;
     }
 

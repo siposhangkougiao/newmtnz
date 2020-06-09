@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="NongYaoMapper">
+    <select id="findList" parameterType="pd" resultType="pd">
+        SELECT
+            NONGYAO_ID,
+			REGISTER_NUMBER,
+			QUANBU
+        FROM nongyao
+        WHERE QUANBU='' and LENGTH(REGISTER_NUMBER)=10
+        limit 2000
+    </select>
+
+	<select id="findById" parameterType="pd" resultType="pd">
+		SELECT
+		NONGYAO_ID,
+		REGISTER_NUMBER,
+		QUANBU
+		FROM nongyao
+		WHERE REGISTER_NUMBER=#{REGISTER_NUMBER}
+	</select>
+
+
+    <update id="edit" parameterType="pd">
+        UPDATE nongyao
+        SET NONGYAO_ID=#{NONGYAO_ID}
+        WHERE REGISTER_NUMBER=#{REGISTER_NUMBER}
+    </update>
+
+	<select id="findLists" parameterType="pd" resultType="pd">
+	  	select * from aaaa
+	</select>
+
+	<select id="findlikeNongYao" parameterType="pd" resultType="pd">
+		SELECT
+			REGISTER_NUMBER,
+			QUANBU,
+			NAME,
+			EFFECTIVE,
+			ENAME,
+			TYPE
+		FROM nongyao
+		WHERE QUANBU=#{number} and POSITION(#{type} IN REGISTER_NUMBER)
+		limit 1
+	</select>
+
+	<select id="findListsss" parameterType="pd" resultType="pd">
+	  	SELECT
+			 a.NONGYAO_ID,
+			 a.count,
+			 a.REGISTER_NUMBER
+		from(SELECT
+			NONGYAO_ID,
+			count(1) as count,
+			REGISTER_NUMBER
+		from nongyao
+		GROUP BY NONGYAO_ID
+		)a
+		where a.count>1
+	</select>
+</mapper>

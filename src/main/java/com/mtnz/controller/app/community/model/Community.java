@@ -2,12 +2,13 @@ package com.mtnz.controller.app.community.model;
 
 
 import com.github.pagehelper.PageInfo;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+@Data
 @Table(name = "community")
 public class Community {
 
@@ -40,11 +41,24 @@ public class Community {
   @Column(name = "talk_type")
   private Integer talkType;
 
+  @Column(name = "prefect")
+  private Integer prefect;
+
+  @Column(name = "title")
+  private String title;
+
+
   /**
    * 参与人
    */
   @Transient
   private Long makerId;
+
+  /**
+   * 是否审核
+   */
+  @Transient
+  private Integer isPass;
 
   /**
    * 是否评论
@@ -77,6 +91,15 @@ public class Community {
   private String releaseName;
 
   @Transient
+  private String nickName;
+
+  @Transient
+  private String header;
+
+  @Transient
+  private String signature;
+
+  @Transient
   private Integer type;
 
   @Transient
@@ -84,6 +107,37 @@ public class Community {
 
   @Transient
   private PageInfo<CommunityComments> pageInfo =new PageInfo<>();
+
+
+  @Transient
+  private String viewTimeOne;
+
+  @Transient
+  private String viewTimeTwo;
+
+  public String getViewTimeOne() {
+    return viewTimeOne;
+  }
+
+  public void setViewTimeOne(String viewTimeOne) {
+    this.viewTimeOne = viewTimeOne;
+  }
+
+  public String getViewTimeTwo() {
+    return viewTimeTwo;
+  }
+
+  public void setViewTimeTwo(String viewTimeTwo) {
+    this.viewTimeTwo = viewTimeTwo;
+  }
+
+  public Integer getPrefect() {
+    return prefect;
+  }
+
+  public void setPrefect(Integer prefect) {
+    this.prefect = prefect;
+  }
 
   public Integer getType() {
     return type;
