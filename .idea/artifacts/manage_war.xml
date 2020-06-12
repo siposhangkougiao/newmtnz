@@ -1,14 +1,11 @@
 <component name="ArtifactManager">
   <artifact type="war" name="manage:war">
     <output-path>$PROJECT_DIR$/target</output-path>
-    <properties id="maven-jee-properties">
-      <options>
-        <module>manage</module>
-        <packaging>war</packaging>
-      </options>
-    </properties>
     <root id="archive" name="manage.war">
       <element id="artifact" artifact-name="manage:war exploded" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/target/WEB-INF/META-INF/MANIFEST.MF" />
+      </element>
     </root>
   </artifact>
 </component>

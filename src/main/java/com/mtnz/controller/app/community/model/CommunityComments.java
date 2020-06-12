@@ -1,8 +1,10 @@
 package com.mtnz.controller.app.community.model;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.util.Date;
-
+@Data
 @Table(name = "community_comments")
 public class CommunityComments {
 
@@ -37,6 +39,21 @@ public class CommunityComments {
 
   @Transient
   private Integer ispraise=0;
+
+  @Transient
+  private String nickName="";
+
+  @Transient
+  private String header="";
+
+  @Transient
+  private String signature="";
+
+  @Transient
+  private Integer isPass;
+
+  @Transient
+  private String viewTimeOne;
 
   public Integer getIspraise() {
     return ispraise;

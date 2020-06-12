@@ -851,10 +851,13 @@ public class AppOrderController extends BaseController{
                     PageData pdx = new PageData();
                     pdx.put("product_id",list1.get(i).get("product_id"));
                     PageData pageData = productService.findById(pdx);
+                    pdx.put("order_pro_id",list1.get(i).get("order_pro_id"));
+                    PageData orderPro = orderProService.findById(pdx);
                     BigDecimal b = new BigDecimal(list1.get(i).get("now_number").toString());
                     BigDecimal c = new BigDecimal(pageData.get("norms1").toString());
                     BigDecimal d = new BigDecimal(list1.get(i).get("purchase_price").toString());
                     a = a.add(b.divide(c,4,BigDecimal.ROUND_HALF_UP).multiply(d));
+
                 }
                 a =a.add(bcv);
                 receivable = String.valueOf(a);

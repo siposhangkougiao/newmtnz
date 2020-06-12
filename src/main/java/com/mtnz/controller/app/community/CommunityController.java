@@ -79,6 +79,39 @@ public class CommunityController extends BaseController{
         return result;
     }
 
+
+    /**
+     *根据类型查询生意圈列表
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "/selectCommByType",method = RequestMethod.POST)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Result selectComm(Integer pageNumber,Integer pageSize,Long userId,Integer type){
+        Result result = new Result(0,"成功");
+        try {
+            PageInfo pageInfo = communityService.selectComm(pageNumber,pageSize,userId,type);
+            PageData pd = new PageData();
+            List<PageData> banner  = bannerService.findList("BannerMapper.findList",pd);
+            List<CommunityNotice> noticeList = communityNoticeService.findList();
+            HashMap<String,Object> map = new HashMap();
+            map.put("banner",banner);
+            map.put("community",pageInfo);
+            map.put("noticeList",noticeList);
+            result.setData(map);
+        }catch (ServiceException e) {
+            logger.error("数据操作失败",e);
+            result.setCode(e.getExceptionCode());
+            result.setMsg(e.getMessage());
+        } catch (Exception e) {
+            logger.error("系统错误",e);
+            result.setCode(-101);
+            logger.error("系统错误",e);
+        }
+        logger.error("返回的参数：{}",JSONObject.toJSONString(result));
+        return result;
+    }
+
     /**
      *发布动态
      * @param community
@@ -102,6 +135,26 @@ public class CommunityController extends BaseController{
         }
         return result;
     }
+
+    @RequestMapping(value = "/deleteById",method = RequestMethod.POST)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Result deleteComm(Long userId,Long communityId){
+
+        Result result = new Result(0,"成功");
+        try {
+            communityService.deleteComm(userId,communityId);
+        }catch (ServiceException e) {
+            logger.error("数据操作失败",e);
+            result.setCode(e.getExceptionCode());
+            result.setMsg(e.getMessage());
+        } catch (Exception e) {
+            logger.error("系统错误",e);
+            result.setCode(-101);
+            logger.error("系统错误",e);
+        }
+        return result;
+    }
+
 
 
     /**

@@ -7,4 +7,6 @@ import com.mtnz.controller.base.MyMapper;
 
 public interface CommunityUserMapper extends MyMapper<CommunityUser> {
 
+    CommunityUser selectCommOne(CommunityUser communityUser);
+
 }

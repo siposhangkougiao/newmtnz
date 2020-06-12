@@ -137,9 +137,9 @@ public class DateUtil {
 		SimpleDateFormat sdf3 = new SimpleDateFormat("MM.dd HH:mm");
 		String dateTime = "";
 			if(MyTimesUtil.isThisYear(date)){
-				dateTime = sdf2.format(date);
-			}else {
 				dateTime = sdf3.format(date);
+			}else {
+				dateTime = sdf2.format(date);
 			}
 		return dateTime;
 	}

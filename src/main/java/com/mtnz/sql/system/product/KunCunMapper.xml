@@ -72,10 +72,10 @@
         order_info_id,
         jia,
         nums,
-        id
+        id,purchaseWay
         )VALUE
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.product_id},#{store_id},#{status},#{item.num},#{date},#{item.total},#{item.purchase_price},#{item.product_price},#{item.total},#{supplier_id},#{supplier_order_info_id},'0',#{item.num},#{id})
+            (#{item.product_id},#{store_id},#{status},#{item.num},#{date},#{item.total},#{item.purchase_price},#{item.product_price},#{item.total},#{supplier_id},#{supplier_order_info_id},'0',#{item.num},#{id},#{item.purchaseWay})
         </foreach>
     </insert>
 
@@ -168,7 +168,8 @@
             order_info_id,
             supplier_id,
             jia,
-            revokes
+            revokes,
+            purchaseWay
         FROM kuncun
         WHERE product_id=#{pd.product_id} and revokes='0' and(
             status='0' or status='2' or status='3'
@@ -417,5 +418,9 @@
 
     <update id="editNumlikucun">
         update kuncun set likucun = 0 where product_id = #{product_id} and status =2
+    </update>
+
+    <update id="setNumsClear">
+        update kuncun set nums = 0 where product_id = #{product_id} and status =2
     </update>
 </mapper>

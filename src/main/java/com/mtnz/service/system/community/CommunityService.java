@@ -18,12 +18,19 @@ public interface CommunityService {
      * @return
      */
     PageInfo select(Community community) throws Exception;
+    PageInfo selectComm(Integer pageNumber,Integer pageSize,Long userId,Integer type) throws Exception;
 
     /**
      * 发布动态
      * @param community
      */
     void insert(Community community);
+
+    /**
+     * 删除动态
+     * @param community
+     */
+    void deleteComm(Long userId,Long communityId);
 
     /**
      * 修改状态（点赞，删除，修改）

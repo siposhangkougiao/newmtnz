@@ -63,7 +63,7 @@ public class SmsBao {
         params.put("pswd", com.mtnz.util.MD5.getMD5("MXT801067" + "VKsJj*T886FJD" + strsystime));
 
         params.put("msg", "【"+storeName+"】亲！您于{$var}日，购买了【{$var}】,共消费{$var}元，期待您再次光临");
-        params.put("params", "18336166733,"+DateUtil.getDay()+","+productName+","+productPrice);
+        params.put("params", phone+","+DateUtil.getDay()+","+productName+","+productPrice);
         params.put("needstatus", "true");
         params.put("resptype", "json");
         String url = "http://www.weiwebs.cn/msg/HttpVarSM";
@@ -78,8 +78,8 @@ public class SmsBao {
     /**
      * 发送短信
      *
-     * @param name			用户名
-     * @param pwd			密码
+     * @param
+     * @param
      * @param mobileString	电话号码字符串，中间用英文逗号间隔
      * @param contextString	内容字符串
      * @param sign			签名

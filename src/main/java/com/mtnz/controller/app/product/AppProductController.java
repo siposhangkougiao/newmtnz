@@ -20,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import sun.text.resources.cldr.ii.FormatData_ii;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -844,6 +845,11 @@ public class AppProductController extends BaseController{
                     }
                     BigDecimal kus = new BigDecimal(list.get(i).get("kucun").toString()).add(c);
                     list.get(i).put("kucun",kus);
+
+                    if (list.get(i).get("isThreeSales").equals(1)){
+                        BigDecimal bigDecimal = new BigDecimal(list.get(i).get("purchase_price").toString()).multiply(new BigDecimal(list.get(i).get("norms4").toString()));
+                        list.get(i).put("purchase_price",bigDecimal);
+                    }
                 }
                 /*Integer pageTotal;
                 if (Integer.valueOf(pd_c.get("count").toString()) % 10 == 0){
@@ -967,6 +973,11 @@ public class AppProductController extends BaseController{
                     }
                     BigDecimal kus = new BigDecimal(list.get(i).get("kucun").toString()).add(c);
                     list.get(i).put("kucun",kus);
+                    if (list.get(i).get("isThreeSales").equals(1)){
+                        BigDecimal bigDecimal = new BigDecimal(list.get(i).get("purchase_price").toString()).multiply(new BigDecimal(list.get(i).get("norms4").toString()));
+                        list.get(i).put("purchase_price",bigDecimal);
+                    }
+
                 }
                 /*Integer pageTotal;
                 if (Integer.valueOf(pd_c.get("count").toString()) % 10 == 0){
@@ -1528,6 +1539,7 @@ public class AppProductController extends BaseController{
             if(new BigDecimal(kucun).compareTo(new BigDecimal(0))==0){//如果清除库存
                 productService.editNumslikucun(pd);
                 kunCunService.editNumlikucun(pd);
+                kunCunService.setNumsClear(pd);
             }
             pd_p.put("status","3");
             pd_p.put("supplier_id","0");
@@ -1572,6 +1584,7 @@ public class AppProductController extends BaseController{
                 /*int in=cc;//实际操作的差值*/
                 //int in = Integer.valueOf(pd_p.get("kucun").toString()) - Integer.valueOf(kucun);
                 BigDecimal in = new BigDecimal(pd_p.get("kucun").toString()).subtract(new BigDecimal(kucun));
+
                 for(int i=0;i<list.size();i++){
                     //if(in>Integer.valueOf(list.get(i).get("nums").toString())){
                     if(in.compareTo(new BigDecimal(list.get(i).get("nums").toString()))==1){
@@ -1582,8 +1595,15 @@ public class AppProductController extends BaseController{
                         in=kuncuns;
                     }else {
                         //list.get(i).put("nums",Integer.valueOf(list.get(i).get("nums").toString())-Integer.valueOf(in));
+//                        list.get(i).put("nums",new BigDecimal(list.get(i).get("nums").toString()).subtract(in));
+                        BigDecimal kuncuns=in.subtract(new BigDecimal(list.get(i).get("nums").toString()));
+                        if(kuncuns.compareTo(new BigDecimal("0"))<0){
+                            break;
+                        }
                         list.get(i).put("nums",new BigDecimal(list.get(i).get("nums").toString()).subtract(in));
                         kunCunService.editNum(list.get(i));
+
+                        in=kuncuns;
                     }
                 }
             }else {//这个地方加库存
@@ -1629,6 +1649,13 @@ public class AppProductController extends BaseController{
             page.setShowCount(10);
             page.setCurrentPage(Integer.parseInt(pageNum));
             List<PageData> list=kunCunService.datalistPage(page);
+            for (int i = 0; i < list.size(); i++) {
+                PageData pageData = list.get(i);
+                PageData product = productService.findById(pageData);
+
+                list.get(i).put("num",new BigDecimal(list.get(i).get("num").toString()).divide(new BigDecimal(product.get("norms4").toString()),4,BigDecimal.ROUND_HALF_UP));
+
+            }
             Map<String, Object> map = new HashedMap();
             if (page.getCurrentPage() == Integer.parseInt(pageNum)) {
                 map.put("data",list);

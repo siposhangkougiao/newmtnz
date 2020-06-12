@@ -2,4 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mtnz.sql.system.community.CommunityUserMapper">
 
+    <select id="selectCommOne" parameterType="com.mtnz.controller.app.community.model.CommunityUser" resultType="com.mtnz.controller.app.community.model.CommunityUser">
+        select * from community_user where user_id=#{userId} and status=2 and type=1 and community_id=#{communityId} limit 1
+    </select>
+
 </mapper>

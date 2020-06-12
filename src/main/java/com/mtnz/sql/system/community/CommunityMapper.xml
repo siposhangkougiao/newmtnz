@@ -8,4 +8,24 @@
         from community a
         order by a.id desc
     </select>
+
+    <select id="selectByType" resultType="com.mtnz.controller.app.community.model.Community">
+        select t1.id,t1.user_id userId,t1.content content,t1.imges imges,t1.praise praise,
+            t1.collection collection,t1.creat_time creatTime,t1.is_delete isDelete,
+            t1.talk_type talkType,t1.prefect,t1.title
+        from community t1 LEFT join community_user t2 on t1.id=t2.community_id
+        where 1=1
+        <if test="type != null and type !=''">
+            and  t2.user_id=#{userId}
+            and t2.type=#{type}
+        </if>
+        and t1.is_delete=0
+        order by t1.id
+    </select>
+
+    <select id="talkCount" resultType="java.lang.Integer">
+        SELECT count(1) as talkCount from community_user where type=3 and status=1 and community_id=#{communityId}
+    </select>
+
+
 </mapper>

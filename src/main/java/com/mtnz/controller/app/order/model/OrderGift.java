@@ -23,6 +23,26 @@ public class OrderGift {
 
     private BigDecimal total_purchase_price;
 
+    private BigDecimal product_price;
+
+    private Integer isThreeSales;
+
+    public BigDecimal getProduct_price() {
+        return product_price;
+    }
+
+    public void setProduct_price(BigDecimal product_price) {
+        this.product_price = product_price;
+    }
+
+    public Integer getIsThreeSales() {
+        return isThreeSales;
+    }
+
+    public void setIsThreeSales(Integer isThreeSales) {
+        this.isThreeSales = isThreeSales;
+    }
+
     public BigDecimal getTotal_purchase_price() {
         return total_purchase_price;
     }

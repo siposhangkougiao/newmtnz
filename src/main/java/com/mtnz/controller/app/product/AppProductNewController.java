@@ -1092,7 +1092,7 @@ public class AppProductNewController extends BaseController{
         String str = "";
         String product_img = "";
         String bar_code_number = "";
-
+        String purchasePrice="";
         Product product = new Product();
         try {
 
@@ -1156,9 +1156,35 @@ public class AppProductNewController extends BaseController{
                 product.setNorms4(productVo.getNorms4());
                 product.setNorms5(productVo.getNorms5());
                 product.setThreePurchase(productVo.getThreePurchase());
-                product.setPurchasePrice(productVo.getPurchase_price());
+
                 product.setProductionEnterprise(productVo.getProduction_enterprise());
-                product.setKucun(new BigDecimal(productVo.getKucun()).multiply(new BigDecimal(productVo.getNorms4())));
+
+                String kucun;
+                if (productVo.getKucun()==null || productVo.getKucun().length()==0){
+                    kucun="0";
+                }else {
+                    kucun = productVo.getKucun();
+                }
+
+                if(productVo.getIsThreeSales().equals("1")){
+                    product.setKucun(new BigDecimal(kucun).multiply(new BigDecimal(productVo.getNorms4())));
+                    if (productVo.getPurchase_price()==null || productVo.getPurchase_price().length()==0 || productVo.getPurchase_price().equals("0")){
+                        product.setPurchasePrice("0");
+                    }else {
+                        BigDecimal purchase = new BigDecimal(productVo.getPurchase_price()).divide(new BigDecimal(productVo.getNorms4()));
+                        product.setPurchasePrice(purchase.toString());
+                    }
+
+                }else {
+
+                    if (productVo.getPurchase_price()==null || productVo.getPurchase_price().length()==0 || productVo.getPurchase_price().equals("0")){
+                        product.setPurchasePrice("0");
+                        product.setKucun(new BigDecimal("0"));
+                    }else {
+                        product.setKucun(new BigDecimal(kucun));
+                        product.setPurchasePrice(purchasePrice);
+                    }
+                }
                 product.setType(productVo.getType());
                 product.setSupplierId(Long.valueOf(productVo.getSupplier_id()==null ? "0" : productVo.getSupplier_id()));
                 product.setLikucun(new BigDecimal(0));
@@ -1186,16 +1212,21 @@ public class AppProductNewController extends BaseController{
                     pd_k.put("store_id", productVo.getStore_id());
                     pd_k.put("product_id", product.getProductId().toString());
                     pd_k.put("customer_id", "0");
-                    pd_k.put("num", new BigDecimal(productVo.getKucun()).multiply(new BigDecimal(productVo.getNorms4())));
+                    if(productVo.getIsThreeSales().equals("1")){
+                        pd_k.put("num", new BigDecimal(productVo.getKucun()).multiply(new BigDecimal(productVo.getNorms4())));
+                        pd_k.put("nums", new BigDecimal(productVo.getKucun()).multiply(new BigDecimal(productVo.getNorms4())));
+                        pd_k.put("purchase_price", new BigDecimal(productVo.getPurchase_price()).divide(new BigDecimal(productVo.getNorms4())).toString());
+                    }else {
+                        pd_k.put("num", new BigDecimal(productVo.getKucun()));
+                        pd_k.put("nums", new BigDecimal(productVo.getKucun()));
+                        pd_k.put("purchase_price", productVo.getPurchase_price());
+                    }
                     pd_k.put("money", "0");
                     pd_k.put("total", "0");
                     pd_k.put("jia", "0");
                     pd_k.put("date", DateUtil.getTime());
                     pd_k.put("order_info_id", "0");
-
-                    pd_k.put("purchase_price", productVo.getPurchase_price());
                     pd_k.put("product_price", productVo.getProduct_price());
-                    pd_k.put("nums", new BigDecimal(productVo.getKucun()).multiply(new BigDecimal(productVo.getNorms4())));
                     kunCunService.save(pd_k);
                 }
                 pd.clear();
@@ -1293,7 +1324,28 @@ public class AppProductNewController extends BaseController{
                 if(product.getProduction_enterprise()==null){
                     pd.put("production_enterprise","");
                 }
-                pd.put("kucun",new BigDecimal(product.getKucun()).multiply(new BigDecimal(product.getNorms4())));
+                String purchase_price="";
+
+                if (product.getPurchase_price()==null || product.getPurchase_price().length()==0){
+                    purchase_price="0";
+                }else {
+                    purchase_price = product.getPurchase_price();
+                }
+                String kucn="";
+                if (product.getKucun()==null || product.getKucun().length()==0 || product.getKucun().equals("0")){
+                    kucn="0";
+                }else {
+                    kucn = product.getKucun();
+                }
+
+                if(product.getIsThreeSales().equals("1")){
+                    pd.put("kucun",new BigDecimal(kucn).multiply(new BigDecimal(product.getNorms4())));
+                    pd.put("purchase_price", new BigDecimal(purchase_price).divide(new BigDecimal(product.getNorms4())).toString());
+
+                }else {
+                    pd.put("kucun",new BigDecimal(kucn));
+                    pd.put("purchase_price", purchase_price);
+                }
                 if(product.getKucun()==null||product.getKucun().length()==0){
                     pd.put("kucun","0");
                 }
@@ -1333,7 +1385,6 @@ public class AppProductNewController extends BaseController{
                     pd.put("bar_code_number",pd_p.getString("bar_code_number"));
                 }
                 pd.put("product_name",product.getProduct_name());
-
                 pd.put("store_id", product.getStore_id());
                 pd.put("product_price", product.getProduct_price());
                 pd.put("norms1", product.getNorms1());
@@ -1342,7 +1393,7 @@ public class AppProductNewController extends BaseController{
                 pd.put("norms4", product.getNorms4());
                 pd.put("norms5", product.getNorms5());
                 pd.put("threePurchase", product.getThreePurchase());
-                pd.put("purchase_price", product.getPurchase_price());
+
                 pd.put("supplier_id", product.getSupplier_id());
                 pd.put("number", product.getNumber());
                 pd.put("url", product.getUrl());
@@ -1527,19 +1578,12 @@ public class AppProductNewController extends BaseController{
 
             // 查询商品的信息
             PageData pd_p=productService.findById(pd);
-            if (isThreeSales ==0){
-                //修改商品表库存
-                productService.editNums(pd);
-
-            }else {
-                BigDecimal twoSales = new BigDecimal(kucun).divide(new BigDecimal(pd_p.get("norms4").toString()));
-                pd.put("kucun",twoSales);
-                productService.editNums(pd);
-            }
-
+            //修改商品表库存
+            productService.editNums(pd);
             if(new BigDecimal(kucun).compareTo(new BigDecimal(0))==0){//如果清除库存
                 productService.editNumslikucun(pd);
                 kunCunService.editNumlikucun(pd);
+                kunCunService.setNumsClear(pd);
             }
             pd_p.put("status","3");
             pd_p.put("supplier_id","0");
@@ -1586,7 +1630,11 @@ public class AppProductNewController extends BaseController{
                 /*int in=cc;//实际操作的差值*/
                 //int in = Integer.valueOf(pd_p.get("kucun").toString()) - Integer.valueOf(kucun);
                 BigDecimal in = new BigDecimal(pd_p.get("kucun").toString()).subtract(new BigDecimal(kucun));
+                BigDecimal left = in;
                 for(int i=0;i<list.size();i++){
+                    if (left.compareTo(new BigDecimal("0"))==0){
+                        break;
+                    }
                     //if(in>Integer.valueOf(list.get(i).get("nums").toString())){
                     if(in.compareTo(new BigDecimal(list.get(i).get("nums").toString()))==1){
                         //Integer kuncuns=Integer.valueOf(in)-Integer.valueOf(list.get(i).get("nums").toString());
@@ -1596,8 +1644,11 @@ public class AppProductNewController extends BaseController{
                         in=kuncuns;
                     }else {
                         //list.get(i).put("nums",Integer.valueOf(list.get(i).get("nums").toString())-Integer.valueOf(in));
+                        BigDecimal tmp = new BigDecimal(list.get(i).get("nums").toString()).subtract(in);
                         list.get(i).put("nums",new BigDecimal(list.get(i).get("nums").toString()).subtract(in));
                         kunCunService.editNum(list.get(i));
+                        left = left.subtract(in);
+
                     }
                 }
             }else {//这个地方加库存

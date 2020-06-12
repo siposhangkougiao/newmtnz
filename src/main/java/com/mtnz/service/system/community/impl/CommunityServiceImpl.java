@@ -25,12 +25,14 @@ import com.mtnz.util.MyTimesUtil;
 import com.mtnz.util.PageData;
 import com.mtnz.util.QiniuUtils;
 import com.sun.corba.se.impl.ior.ObjectAdapterIdNumber;
+import com.sun.org.apache.bcel.internal.generic.IFNULL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import javax.swing.text.StyledEditorKit;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +61,51 @@ public class CommunityServiceImpl implements CommunityService {
     @Autowired
     private StoreUserMapper storeUserMapper;
 
+
+    @Override
+    public PageInfo selectComm(Integer pageNumber,Integer pageSize,Long userId,Integer type) throws Exception{
+        PageHelper.startPage(pageNumber,pageSize);
+        List<Community> list = communityMapper.selectByType(userId,type);
+        for (Community comm : list) {
+            Integer talkCount = communityMapper.talkCount(comm.getId());
+            comm.setIstalk(talkCount);
+
+            Map<String,Object> map = storeUserMapper.findStoreIsPass(comm.getUserId());
+            if(map==null){
+                comm.setIsPass(0);
+            }else {
+                comm.setIsPass((Integer)map.get("is_pass"));
+            }
+
+            SysAppUser sysAppUser =sysAppUserNewMapper.selectByPrimaryKey(comm.getUserId());
+            comm.setReleaseName(sysAppUser.getName());
+            comm.setNickName(sysAppUser.getNickName());
+            comm.setHeader(sysAppUser.getHeader());
+            comm.setSignature(sysAppUser.getSignature());
+            comm.setViewTimeOne(DateUtil.dateFormat(comm.getCreatTime()));
+
+            CommunityUser communityUser = new CommunityUser();
+            communityUser.setCommunityId(comm.getId());
+//            communityUser.setUserId(comm.getUserId());
+            List<CommunityUser> communityUsers = communityUserMapper.select(communityUser);
+            for (int j = 0; j < communityUsers.size(); j++) {
+                if(communityUsers.get(j).getType()==1){
+                    comm.setIspraise(1);
+                }else if(communityUsers.get(j).getType()==2){
+                    comm.setIsget(1);
+                }else if(communityUsers.get(j).getType()==3){
+                    comm.setIstalk(1);
+                }
+
+            }
+
+
+        }
+        PageInfo pageInfo = new PageInfo(list);
+        return pageInfo;
+    }
+
+
     /**
      * 查询生意圈列表
      * @param community
@@ -67,9 +114,10 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public PageInfo select(Community community) {
         PageHelper.startPage(community.getPageNumber(),community.getPageSize());
-        Example CommunityExample = new Example(Community.class);
-        CommunityExample.setOrderByClause("id desc");
-        List<Community> list = communityMapper.selectByExample(CommunityExample);
+        Example communityExample = new Example(Community.class);
+        communityExample.and().andEqualTo("isDelete",0);
+        communityExample.setOrderByClause("id desc");
+        List<Community> list = communityMapper.selectByExample(communityExample);
         List<Long> ulist = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i++) {
@@ -146,6 +194,19 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public void insert(Community community) {
         communityMapper.insertSelective(community);
+    }
+
+    @Override
+    public void deleteComm(Long userId,Long communityId) {
+        Community community = communityMapper.selectByPrimaryKey(communityId);
+        if(community == null){
+            throw new ServiceException(-103,"您要删除的帖子不存在",null);
+        }
+        if(!community.getUserId().equals(userId)){
+            throw new ServiceException(-103,"您不能删除别人发布的帖子",null);
+        }
+        community.setIsDelete(1);
+        communityMapper.updateByPrimaryKeySelective(community);
     }
 
     /**
@@ -239,7 +300,7 @@ public class CommunityServiceImpl implements CommunityService {
     public void updatecomments(CommunityComments communityComments) {
         if(communityComments.getPraise()!=null){
             CommunityComments comments = communityCommentsMapper.selectByPrimaryKey(communityComments.getId());
-            communityComments.setPraise(comments.getPraise()+communityComments.getPraise());
+
 
             //修改点赞数量
             if(communityComments.getPraise()>0){//加赞
@@ -247,15 +308,17 @@ public class CommunityServiceImpl implements CommunityService {
                 communityUser.setUserId(communityComments.getMakerId());
                 communityUser.setType(1);
                 communityUser.setStatus(2);
-                communityUser.setCommunityId(communityComments.getCommunityId());
+                communityUser.setCommunityId(communityComments.getId());
                 communityUserMapper.insertSelective(communityUser);
             }else {//减赞
                 CommunityUser communityUser = new CommunityUser();
                 communityUser.setUserId(communityComments.getMakerId());
+                communityUser.setCommunityId(communityComments.getId());
                 communityUser.setStatus(2);
                 communityUser.setType(1);
                 communityUserMapper.delete(communityUser);
             }
+        communityComments.setPraise(comments.getPraise()+communityComments.getPraise());
         }
         communityCommentsMapper.updateByPrimaryKeySelective(communityComments);
     }
@@ -295,19 +358,50 @@ public class CommunityServiceImpl implements CommunityService {
                 community.setIstalk(1);
             }
         }
+
         PageHelper.startPage(bean.getPageNumber(),bean.getPageSize());
-        List<CommunityComments> list = communityCommentsMapper.select(comments);
         SysAppUser sysAppUser1 = sysAppUserNewMapper.selectByPrimaryKey(community.getUserId());
+        Map<String,Object> map = storeUserMapper.findStoreIsPass(community.getUserId());
+        if(map==null){
+            community.setIsPass(0);
+        }else {
+            community.setIsPass((Integer)map.get("is_pass"));
+        }
+        community.setNickName(sysAppUser1.getNickName());
+        community.setHeader(sysAppUser1.getHeader());
+        community.setSignature(sysAppUser1.getSignature());
+        community.setViewTimeOne(DateUtil.dateFormat(community.getCreatTime()));
         community.setReleaseName(sysAppUser1.getName());
+
+        Example comment = new Example(CommunityComments.class);
+        comment.and().andEqualTo("communityId",bean.getId());
+        comment.and().andEqualTo("isDelete",0);
+        comment.orderBy("id").desc();
+
+        List<CommunityComments> list = communityCommentsMapper.selectByExample(comment);
         for (int i = 0; i < list.size(); i++) {
-            SysAppUser sysAppUser2 = sysAppUserNewMapper.selectByPrimaryKey(list.get(i).getUserId());
+            SysAppUser sysAppUser2 = sysAppUserNewMapper.selectByPrimaryKey(community.getUserId());
             list.get(i).setCommentsName(sysAppUser2.getName());
-            CommunityUser communityUser= new CommunityUser();
-            communityUser.setUserId(list.get(i).getUserId());
-            communityUser.setStatus(2);
-            communityUser.setType(1);
-            if(communityUserMapper.selectCount(communityUser)>0){
+            list.get(i).setNickName(sysAppUser2.getNickName());
+            list.get(i).setHeader(sysAppUser2.getHeader());
+            list.get(i).setSignature(sysAppUser2.getSignature());
+            list.get(i).setViewTimeOne(DateUtil.dateFormat(list.get(i).getCreatTime()));
+
+            Map<String,Object> contentMap = storeUserMapper.findStoreIsPass(list.get(i).getUserId());
+            if(contentMap==null){
+                list.get(i).setIsPass(0);
+            }else {
+                list.get(i).setIsPass((Integer)contentMap.get("is_pass"));
+            }
+
+            CommunityUser user = new CommunityUser();
+            user.setCommunityId(list.get(i).getId());
+            user.setUserId(bean.getMakerId());
+            CommunityUser communityUser= communityUserMapper.selectCommOne(user);
+            if(communityUser != null){
                 list.get(i).setIspraise(1);
+            }else {
+                list.get(i).setIspraise(0);
             }
         }
         PageInfo pageInfo = new PageInfo(list);

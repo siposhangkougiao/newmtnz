@@ -548,7 +548,14 @@ public class OrderKuncunService extends BaseController{
                             if(new BigDecimal(lists.get(j).get("nums").toString()).compareTo(in)>-1){//现有库存大于实际购买的数量时
                                 lists.get(j).put("order_pro_id",list.get(i).get("order_pro_id").toString());
                                 lists.get(j).put("product_price",list.get(i).get("product_price").toString());
-                                lists.get(j).put("purchase_price",lists.get(j).get("purchase_price").toString());
+                                PageData pd_pp=productService.findById(list.get(i));
+
+                                if(list.get(i).get("isThreeSales").toString().equals("1.0")){
+                                    lists.get(j).put("purchase_price",new BigDecimal(list.get(i).get("purchase_price").toString()).multiply(new BigDecimal(pd_pp.get("norms4").toString())));
+                                }else {
+                                    lists.get(j).put("purchase_price",lists.get(j).get("purchase_price").toString());
+                                }
+//                                lists.get(j).put("purchase_price",lists.get(j).get("purchase_price").toString());
                                 lists.get(j).put("order_info_id",pd_o.get("order_info_id").toString());
                                 lists.get(j).put("num",kucun);
                                 lists.get(j).put("store_id",store_id);
@@ -643,8 +650,6 @@ public class OrderKuncunService extends BaseController{
                     list.get(i).put("likucun",new BigDecimal(0));
                     list.get(i).put("all_number",new BigDecimal(0));
                     list.get(i).put("now_number",new BigDecimal(0));
-                    listone.add(list.get(i));
-                    kunCunService.batchSavess(listone,store_id,DateUtil.getTime(),"0",customer_id,pd_o.get("order_info_id").toString(),"1",pd_o.get("order_info_id").toString());
                     if(list.get(i).get("isThreeSales").toString().equals("0.0")){ //如果是按三级单位购买的
                         productService.editNum(list.get(i));//更新商品库存信息
                     }else {
@@ -652,6 +657,8 @@ public class OrderKuncunService extends BaseController{
                         list.get(i).put("num",bigDecimal);
                         productService.editNum(list.get(i));//更新商品库存信息
                     }
+                    listone.add(list.get(i));
+                    kunCunService.batchSavess(listone,store_id,DateUtil.getTime(),"0",customer_id,pd_o.get("order_info_id").toString(),"1",pd_o.get("order_info_id").toString());
 
                 }
             }
@@ -689,26 +696,29 @@ public class OrderKuncunService extends BaseController{
             pd.put("order_number",no);
             pd.put("order_info_id",pd_o.get("order_info_id"));
 
-            if(isSend==1){
-                Store store = new Store();
-                store.setStoreId(Long.valueOf(store_id));
-                Store stores = storeMapper.selectByPrimaryKey(store);
-                if(stores.getNumber().compareTo(0)==-1){
-                    pd.clear();
-                    pd.put("code","2");
-                    pd.put("message","短信剩余条数不足，请充值!");
-                    pd.put("status",statuss);
-                    return mapper.writeValueAsString(pd);
+            if (isSend!=null){
+                if(isSend==1){
+                    Store store = new Store();
+                    store.setStoreId(Long.valueOf(store_id));
+                    Store stores = storeMapper.selectByPrimaryKey(store);
+                    if(stores.getNumber().compareTo(0)==0){
+                        pd.clear();
+                        pd.put("code","2");
+                        pd.put("message","短信剩余条数不足，请充值!");
+                        pd.put("status",statuss);
+                        return mapper.writeValueAsString(pd);
+                    }
+                    StringBuffer product_name = new StringBuffer();
+                    //List<PageData>
+                    BigDecimal flag= new BigDecimal("0");
+                    for (int i = 0; i <list.size() ; i++) {
+                        product_name.append(list.get(i).get("product_name").toString()).append("、");
+                        flag =  flag.add(new BigDecimal(list.get(i).get("product_price").toString()));
+                    }
+                    product_name = product_name.deleteCharAt(product_name.length()-1);
+                    SmsBao smsBao = new SmsBao();
+                    smsBao.sendSms(stores.getName(),phone,product_name.toString(),flag.toString());
                 }
-                StringBuffer product_name = new StringBuffer();
-                StringBuffer product_price = new StringBuffer();
-                //List<PageData>
-                for (int i = 0; i <list.size() ; i++) {
-                    product_name.append(list.get(i).get("product_name").toString());
-                    product_price.append(list.get(i).get("product_price").toString());
-                }
-                SmsBao smsBao = new SmsBao();
-                smsBao.sendSms(stores.getName(),phone,product_name.toString(),product_price.toString());
             }
         }
         String str="";

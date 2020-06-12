@@ -188,4 +188,8 @@ public class KunCunService {
     public void editNumlikucun(PageData pd) throws Exception {
         daoSupport.update("KunCunMapper.editNumlikucun",pd);
     }
+
+    public void setNumsClear(PageData pd) throws Exception {
+        daoSupport.update("KunCunMapper.setNumsClear",pd);
+    }
 }

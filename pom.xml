@@ -479,8 +479,6 @@
       <version>1.16.22</version>
     </dependency>
 
-
-
   </dependencies>
   <build>
     <finalName>manage</finalName>

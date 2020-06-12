@@ -414,7 +414,9 @@ public class AppCustomerController extends BaseController{
                     pd.put("customer_id",listPhone.get(0).get("customer_id").toString());
                     return mapper.writeValueAsString(pd);
                 }
-                 if(img.contains("http")){
+                if(img == null) {
+                    img = "";
+                } else if(img.contains("http")){
                     pd.put("img",img);
                 } else {
                      if (img != null && !"".equals(img)) {

@@ -3,7 +3,7 @@
 <mapper namespace="OrderGiftMapper">
 
     <insert id="saveGift">
-        insert into order_gift (order_info_id,great_time,product_id,purchase_price,total_purchase_price
+        insert into order_gift (order_info_id,great_time,product_id,purchase_price,total_purchase_price,isThreeSales,product_price
         <if test="num !=null">
             ,num
         </if>
@@ -11,7 +11,7 @@
             ,number
         </if>
         )values (
-        #{order_info_id},NOW(),#{product_id},#{purchase_price},#{total_purchase_price}
+        #{order_info_id},NOW(),#{product_id},#{purchase_price},#{total_purchase_price},#{isThreeSales},#{product_price}
         <if test="num !=null">
             ,#{num}
         </if>

@@ -561,6 +561,9 @@ public class AppSupplierController extends BaseController{
 
             for (int i = 0; i < list.size(); i++) {
                 list.get(i).put("nums",list.get(i).get("num"));
+                if(list.get(i).get("purchaseWay")==null){
+                    list.get(i).put("purchaseWay",0);
+                }
             }
             //添加订单详情
             supplierOrderProService.batchSave(list,pd.get("supplier_order_info_id").toString());
@@ -574,7 +577,6 @@ public class AppSupplierController extends BaseController{
                 owe=Double.valueOf(pd_s.get("owe").toString());
             }
 
-            kunCunService.batchSaves(list,store_id,DateUtil.getTime(),"2",supplier_id,pd.get("supplier_order_info_id").toString(),pd.get("supplier_order_info_id").toString());
 
             for(int i=0;i<list.size();i++){
                 if(list.get(i).get("product_id")!=null){
@@ -589,6 +591,8 @@ public class AppSupplierController extends BaseController{
                         pageData.put("num",pageData.get("num"));
                     }else {
                         BigDecimal bigDecimal = new BigDecimal(pageData.get("num").toString()).multiply(new BigDecimal(pageData.get("norms4").toString()));
+                        BigDecimal purchase = new BigDecimal(list.get(i).get("purchase_price").toString()).divide(new BigDecimal(pageData.get("norms4").toString()),4,BigDecimal.ROUND_HALF_UP);
+                        list.get(i).put("purchase_price",purchase);
                         pageData.put("nums",bigDecimal);
                         pageData.put("num",bigDecimal);
 
@@ -596,6 +600,9 @@ public class AppSupplierController extends BaseController{
                     productService.editNumJia(pageData);
                 }
             }
+            kunCunService.batchSaves(list,store_id,DateUtil.getTime(),"2",supplier_id,pd.get("supplier_order_info_id").toString(),pd.get("supplier_order_info_id").toString());
+
+
             //处理预付款抵扣问题
             if(balance!=null){
                 SupplierBalanceOwe balanceOwe = new SupplierBalanceOwe();

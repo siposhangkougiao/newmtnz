@@ -659,7 +659,7 @@ public class AppReturnController extends BaseController{
                     }
                     pdOrderpro.put("now_number",new BigDecimal(list.get(i).get("li_num").toString()));
                     orderProService.editOrderKuncunsli(pdOrderpro);
-                    if(list.get(i).get("isThreeSales").toString().equals("0.0")){ //如果是按三级单位购买的
+                    if(list.get(i).get("isThreeSales").equals(0)){ //如果是按三级单位购买的
                         pdOrderpro.put("now_number",new BigDecimal(list.get(i).get("li_num").toString()));
                         productService.editJianNumsli(pdOrderpro);//更新商品库存信息
                     }else {

@@ -69,6 +69,17 @@ public class KuCun {
   @Column(name = "id")
   private String id;
 
+  @Column(name = "purchaseWay")
+  private Integer purchaseWay;
+
+  public Integer getPurchaseWay() {
+    return purchaseWay;
+  }
+
+  public void setPurchaseWay(Integer purchaseWay) {
+    this.purchaseWay = purchaseWay;
+  }
+
   public Long getKuncunId() {
     return kuncunId;
   }
